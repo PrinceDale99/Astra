@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "Secure, institutional tokenized treasury overnight repo markets built natively on Stellar Soroban utilizing CAP-80 host primitives and Groth16 zero-knowledge proofs.",
 };
 
+import { BackendWakeup } from "@/components/layout/BackendWakeup";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,6 +27,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${spaceGrotesk.variable} min-h-full flex flex-col bg-black text-white`}>
+        <BackendWakeup />
         {children}
       </body>
     </html>
