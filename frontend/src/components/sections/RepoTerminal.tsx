@@ -6,7 +6,7 @@ import { generateRepoHealthProof } from '../../lib/zk/prover';
 import { submitCreateRepoDeal } from '../../lib/stellar/repoTx';
 import VaultScene from '../3d/VaultScene';
 import KineticHeading from '../ui/KineticHeading';
-import { Shield, Coins, Calendar, Key, AlertCircle, CheckCircle, Terminal } from 'lucide-react';
+import { Shield, Coins, Calendar, Key, AlertCircle, CheckCircle, Terminal, ArrowRight, Lock } from 'lucide-react';
 
 export default function RepoTerminal() {
   const { connected, publicKey, xlmBalance, error: walletError, loading: walletLoading, connectWallet } = useFreighter();
@@ -31,6 +31,9 @@ export default function RepoTerminal() {
 
   // Parallax Scroll Tracking for the 3D core deformation
   const [scrollProgress, setScrollProgress] = useState<number>(0);
+
+  // Step Wizard State
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,6 +65,7 @@ export default function RepoTerminal() {
 
       setZkProofData(result);
       setIsVerified(true);
+      setCurrentStep(5); // Move to execute step
     } catch (err: any) {
       setErrorMessage(err.message || 'ZK Prover execution failed.');
     } finally {
@@ -84,6 +88,7 @@ export default function RepoTerminal() {
         publicSignals: zkProofData.publicSignals,
       });
       setTxHash(hash);
+      setCurrentStep(6); // Done
     } catch (err: any) {
       setErrorMessage(err.message || 'Soroban transaction failed.');
     } finally {
@@ -91,188 +96,300 @@ export default function RepoTerminal() {
     }
   };
 
+  // Auto-advance from Step 1 if connected
+  useEffect(() => {
+    if (connected && currentStep === 1) {
+      setCurrentStep(2);
+    }
+  }, [connected, currentStep]);
+
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#00ffcc] selection:text-black">
-      {/* Sticky Marquee Kinetic Header */}
-      <div className="sticky top-0 z-40">
-        <KineticHeading text="Astra Protocol" />
+    <div className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black font-sans overflow-hidden">
+      {/* 3D Background */}
+      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none transition-opacity duration-1000" style={{ opacity: isVerified ? 0.6 : 0.3 }}>
+        <VaultScene isVerified={isVerified} scrollProgress={scrollProgress} />
       </div>
+      
+      {/* Dark overlay for readability */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#030508]/80 via-transparent to-[#030508] pointer-events-none"></div>
 
-      <div className="container mx-auto px-6 py-12">
-        {/* Broken / Organic Grid Layout */}
-        <div className="grid grid-cols-12 gap-8 items-start">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-12 md:py-24">
+        
+        <div className="mb-16 text-center">
+          <KineticHeading text="Astra Repo" />
+          <p className="mt-4 text-zinc-400 font-mono text-sm tracking-widest uppercase">Zero-Knowledge Tri-Party Protocol</p>
+        </div>
+
+        {/* Global Errors */}
+        {(errorMessage || walletError) && (
+          <div className="mb-8 border border-red-950 bg-red-950/40 p-4 text-sm font-mono text-red-400 flex gap-3 items-center backdrop-blur-md">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <p>{errorMessage || walletError}</p>
+          </div>
+        )}
+
+        {/* Steps Container */}
+        <div className="space-y-6">
           
-          {/* Column Left: Institutional Terminal Controls (Broken Grid: Span 7 Offset 1) */}
-          <div className="col-span-12 lg:col-span-7 lg:col-start-1 space-y-8 bg-[#0b0f19]/80 border border-[#1A2035]/80 p-8 rounded-none backdrop-blur-xl -rotate-1 relative z-20">
-            
-            {/* Terminal Header */}
-            <div className="flex items-center justify-between border-b border-[#1A2035] pb-4">
-              <div className="flex items-center gap-2 font-mono">
-                <Terminal className="text-[#00ffcc] h-5 w-5 animate-pulse" />
-                <span className="text-xs uppercase tracking-widest text-zinc-400">ASTRA_REPO_CORE_v1.0.3</span>
-              </div>
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+          {/* STEP 1: Connect Wallet */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 1 ? 'border-[#00ffcc] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(0,255,204,0.1)]' : currentStep > 1 ? 'border-[#1A2035] bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-50'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 1 ? 'text-[#00ffcc]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">01.</span> Identity Authentication
+              </h2>
+              {connected && <CheckCircle className="text-emerald-500 w-5 h-5" />}
             </div>
+            
+            {currentStep >= 1 && (
+              <div className="mt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-[#1A2035] bg-black/40 gap-4">
+                <div>
+                  <p className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">Borrower Identity</p>
+                  {connected && publicKey ? (
+                    <p className="text-sm font-mono text-[#00ffcc] break-all">{publicKey}</p>
+                  ) : (
+                    <p className="text-sm font-mono text-amber-500">Not Connected</p>
+                  )}
+                </div>
+                <div className="flex-shrink-0">
+                  {connected ? (
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">SAC Balance</p>
+                      <p className="text-lg font-mono font-bold text-white">{xlmBalance} XLM</p>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={connectWallet}
+                      disabled={walletLoading}
+                      className="border border-[#00ffcc] bg-[#00ffcc]/10 text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-6 py-3 hover:bg-[#00ffcc] hover:text-black transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {walletLoading ? 'Accessing...' : 'Connect Freighter'}
+                      {!walletLoading && <ArrowRight className="w-4 h-4" />}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
-            {/* Wallet Integration State */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-[#1A2035] bg-black/40 gap-4">
-              <div>
-                <p className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">Borrower Identity</p>
-                {connected && publicKey ? (
-                  <p className="text-xs font-mono text-[#00ffcc] truncate max-w-[280px]">{publicKey}</p>
-                ) : (
-                  <p className="text-xs font-mono text-amber-500">Not Connected</p>
+          {/* STEP 2: ZK Collateral Parameters */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 2 ? 'border-[#3b82f6] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(59,130,246,0.1)]' : currentStep > 2 ? 'border-[#1A2035] bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 2 ? 'text-[#3b82f6]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">02.</span> Collateral Parameters <Lock className="w-4 h-4 ml-2 text-zinc-500" />
+              </h2>
+              {currentStep > 2 && <CheckCircle className="text-emerald-500 w-5 h-5" />}
+            </div>
+            
+            {currentStep >= 2 && (
+              <div className="mt-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Collateral Amount (YLDS)</label>
+                    <input
+                      type="number"
+                      value={collateralAmount}
+                      onChange={(e) => setCollateralAmount(Number(e.target.value))}
+                      disabled={currentStep !== 2}
+                      className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#3b82f6] transition-colors disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Bond Maturity Date</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
+                      <input
+                        type="date"
+                        value={bondMaturityDate}
+                        onChange={(e) => setBondMaturityDate(e.target.value)}
+                        disabled={currentStep !== 2}
+                        className="w-full bg-black border border-[#1A2035] pl-10 pr-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#3b82f6] transition-colors disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Institutional Secret Salt</label>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
+                      <input
+                        type="password"
+                        value={institutionalSecret}
+                        onChange={(e) => setInstitutionalSecret(e.target.value)}
+                        disabled={currentStep !== 2}
+                        className="w-full bg-black border border-[#1A2035] pl-10 pr-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#3b82f6] transition-colors disabled:opacity-50"
+                      />
+                    </div>
+                    <p className="mt-2 text-[10px] text-zinc-500 font-mono">This value never leaves your browser. It is hashed into the public signals.</p>
+                  </div>
+                </div>
+                
+                {currentStep === 2 && (
+                  <div className="flex justify-end pt-4">
+                    <button
+                      onClick={() => setCurrentStep(3)}
+                      className="border border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6] font-mono text-xs uppercase tracking-widest px-6 py-3 hover:bg-[#3b82f6] hover:text-black transition-all duration-300 flex items-center gap-2"
+                    >
+                      Confirm Collateral <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
-              <div>
-                {connected ? (
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">SAC Balance</p>
-                    <p className="text-sm font-mono font-bold text-white">{xlmBalance} XLM</p>
+            )}
+          </div>
+
+          {/* STEP 3: Lending Parameters */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 3 ? 'border-[#ffd700] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(255,215,0,0.1)]' : currentStep > 3 ? 'border-[#1A2035] bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 3 ? 'text-[#ffd700]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">03.</span> Borrow Allocation
+              </h2>
+              {currentStep > 3 && <CheckCircle className="text-emerald-500 w-5 h-5" />}
+            </div>
+            
+            {currentStep >= 3 && (
+              <div className="mt-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Requested XLM Loan</label>
+                    <input
+                      type="number"
+                      value={requestedLoanXLM}
+                      onChange={(e) => setRequestedLoanXLM(Number(e.target.value))}
+                      disabled={currentStep !== 3}
+                      className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#ffd700] transition-colors disabled:opacity-50"
+                    />
                   </div>
+                  <div>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Oracle Price (XLM/YLDS)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={oraclePriceXLM}
+                      onChange={(e) => setOraclePriceXLM(Number(e.target.value))}
+                      disabled={currentStep !== 3}
+                      className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#ffd700] transition-colors disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-black/60 border border-[#1A2035] p-5 flex flex-col gap-3 font-mono">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-zinc-400">Min. Required Health:</span>
+                    <span className="text-[#00ffcc] font-bold text-lg">{minHealthFactor}%</span>
+                  </div>
+                  <div className="h-px w-full bg-[#1A2035]"></div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-zinc-400">Projected Collateralization:</span>
+                    <span className="text-white text-lg font-bold">
+                      {Math.round(((collateralAmount * oraclePriceXLM) / requestedLoanXLM) * 100)}%
+                    </span>
+                  </div>
+                </div>
+
+                {currentStep === 3 && (
+                  <div className="flex justify-end pt-4">
+                    <button
+                      onClick={() => setCurrentStep(4)}
+                      className="border border-[#ffd700] bg-[#ffd700]/10 text-[#ffd700] font-mono text-xs uppercase tracking-widest px-6 py-3 hover:bg-[#ffd700] hover:text-black transition-all duration-300 flex items-center gap-2"
+                    >
+                      Confirm Terms <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* STEP 4: ZK Proof Generation */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 4 ? 'border-[#b582ff] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(181,130,255,0.1)]' : currentStep > 4 ? 'border-[#1A2035] bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 4 ? 'text-[#b582ff]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">04.</span> Zero-Knowledge Computation
+              </h2>
+              {currentStep > 4 && <CheckCircle className="text-emerald-500 w-5 h-5" />}
+            </div>
+
+            {currentStep >= 4 && (
+              <div className="mt-6">
+                <div className="bg-black/40 border border-[#1A2035] p-6 font-mono text-sm text-zinc-400">
+                  <p className="mb-4">Generate a Groth16 cryptographic proof confirming your collateralization exceeds the minimum health factor without revealing your private parameters to the network.</p>
+                  
+                  {isVerified ? (
+                    <div className="flex items-center gap-3 text-[#00ffcc] bg-[#00ffcc]/10 p-3 border border-[#00ffcc]/30">
+                      <CheckCircle className="w-5 h-5" /> Proof Generated Successfully
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleGenerateProof}
+                      disabled={isProving}
+                      className="w-full border border-[#b582ff] bg-[#b582ff]/10 text-[#b582ff] font-mono text-xs uppercase tracking-widest py-4 hover:bg-[#b582ff] hover:text-black transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2"
+                    >
+                      {isProving ? (
+                        <>
+                          <Terminal className="w-4 h-4 animate-spin" /> Computing Circuit...
+                        </>
+                      ) : (
+                        'Generate ZK Proof'
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* STEP 5: Execute Transaction */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 5 ? 'border-[#00ffcc] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(0,255,204,0.1)]' : currentStep > 5 ? 'border-emerald-500/50 bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 5 ? 'text-[#00ffcc]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">05.</span> Protocol Execution
+              </h2>
+            </div>
+
+            {currentStep >= 5 && (
+              <div className="mt-6">
+                {txHash ? (
+                   <div className="border border-emerald-950 bg-emerald-950/40 p-6 font-mono">
+                     <div className="flex gap-4 items-start">
+                        <CheckCircle className="h-8 w-8 text-emerald-400 flex-shrink-0" />
+                        <div>
+                          <p className="font-bold text-emerald-400 uppercase tracking-widest text-lg mb-2">Deal Executed</p>
+                          <p className="text-zinc-400 text-sm mb-4">The ZK Proof has been verified by the Soroban CAP-80 host primitives and your XLM loan has been dispersed.</p>
+                          <div className="bg-black/60 border border-emerald-900/50 p-4">
+                            <p className="text-[10px] uppercase text-zinc-500 mb-1">Transaction Hash</p>
+                            <p className="text-xs text-emerald-200 break-all select-all">{txHash}</p>
+                          </div>
+                          
+                          <button
+                            onClick={() => {
+                              setCurrentStep(1);
+                              setIsVerified(false);
+                              setZkProofData(null);
+                              setTxHash(null);
+                            }}
+                            className="mt-6 border border-zinc-700 bg-transparent text-zinc-300 font-mono text-xs uppercase tracking-widest px-6 py-2 hover:bg-zinc-800 transition-all duration-300"
+                          >
+                            Start New Deal
+                          </button>
+                        </div>
+                     </div>
+                   </div>
                 ) : (
                   <button
-                    onClick={connectWallet}
-                    disabled={walletLoading}
-                    className="border border-[#00ffcc] bg-transparent text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-4 py-2 hover:bg-[#00ffcc]/10 transition-all duration-300 disabled:opacity-50"
+                    onClick={handleExecuteRepo}
+                    disabled={txLoading || !connected}
+                    className="w-full bg-[#00ffcc] text-black font-mono text-sm font-bold uppercase tracking-widest py-5 hover:bg-transparent hover:text-[#00ffcc] hover:border hover:border-[#00ffcc] transition-all duration-300 disabled:opacity-30 flex justify-center items-center gap-2"
                   >
-                    {walletLoading ? 'Accessing...' : 'Connect Freighter'}
+                    {txLoading ? (
+                      <>
+                        <Terminal className="w-4 h-4 animate-spin" /> Submitting to Soroban...
+                      </>
+                    ) : (
+                      'Sign & Execute Deal'
+                    )}
                   </button>
                 )}
               </div>
-            </div>
-
-            {/* Step 1: Collateral and Vault parameters */}
-            <div className="space-y-6">
-              <h2 className="text-sm font-mono tracking-wider uppercase text-zinc-300 flex items-center gap-2">
-                <Shield className="h-4 w-4 text-[#3b82f6]" />
-                [01] ZK Collateral Parameters (Private)
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Collateral Amount (YLDS)</label>
-                  <input
-                    type="number"
-                    value={collateralAmount}
-                    onChange={(e) => setCollateralAmount(Number(e.target.value))}
-                    className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#00ffcc] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Bond Maturity Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
-                    <input
-                      type="date"
-                      value={bondMaturityDate}
-                      onChange={(e) => setBondMaturityDate(e.target.value)}
-                      className="w-full bg-black border border-[#1A2035] pl-10 pr-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#00ffcc] transition-colors"
-                    />
-                  </div>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Institutional Secret Salt</label>
-                  <div className="relative">
-                    <Key className="absolute left-3 top-3.5 h-4 w-4 text-zinc-500" />
-                    <input
-                      type="password"
-                      value={institutionalSecret}
-                      onChange={(e) => setInstitutionalSecret(e.target.value)}
-                      className="w-full bg-black border border-[#1A2035] pl-10 pr-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#00ffcc] transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 2: Borrow / Lending Params */}
-            <div className="space-y-6 pt-4">
-              <h2 className="text-sm font-mono tracking-wider uppercase text-zinc-300 flex items-center gap-2">
-                <Coins className="h-4 w-4 text-[#ffd700]" />
-                [02] Overnight Repo Allocation (Public)
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Requested XLM Loan</label>
-                  <input
-                    type="number"
-                    value={requestedLoanXLM}
-                    onChange={(e) => setRequestedLoanXLM(Number(e.target.value))}
-                    className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#00ffcc] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Oracle Price (XLM/YLDS)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={oraclePriceXLM}
-                    onChange={(e) => setOraclePriceXLM(Number(e.target.value))}
-                    className="w-full bg-black border border-[#1A2035] px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-[#00ffcc] transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Health Indicator bar */}
-              <div className="bg-black/60 border border-[#1A2035] p-4 flex flex-col gap-2 font-mono">
-                <div className="flex justify-between text-xs">
-                  <span className="text-zinc-400">Min. Required Health:</span>
-                  <span className="text-[#00ffcc] font-bold">{minHealthFactor}%</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-zinc-400">Projected Collateralization:</span>
-                  <span className="text-white">
-                    {Math.round(((collateralAmount * oraclePriceXLM) / requestedLoanXLM) * 100)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Error notifications */}
-            {(errorMessage || walletError) && (
-              <div className="border border-red-950 bg-red-950/20 p-4 text-xs font-mono text-red-400 flex gap-3 items-center">
-                <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                <p>{errorMessage || walletError}</p>
-              </div>
             )}
-
-            {/* Success logs */}
-            {txHash && (
-              <div className="border border-emerald-950 bg-emerald-950/20 p-4 text-xs font-mono text-emerald-400 flex gap-3 items-center">
-                <CheckCircle className="h-5 w-5 flex-shrink-0" />
-                <div>
-                  <p className="font-bold uppercase tracking-wider">Repo Successfully Executed</p>
-                  <p className="text-[10px] break-all select-all mt-1">{txHash}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Primary Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-              <button
-                onClick={handleGenerateProof}
-                disabled={isProving}
-                className="w-full border border-blue-500 bg-transparent text-blue-400 font-mono text-xs uppercase tracking-widest py-4 hover:bg-blue-500/10 transition-all duration-300 disabled:opacity-50"
-              >
-                {isProving ? 'Generating Proof...' : 'Generate ZK Proof'}
-              </button>
-
-              <button
-                onClick={handleExecuteRepo}
-                disabled={!isVerified || txLoading || !connected}
-                className="w-full bg-[#00ffcc] text-black font-mono text-xs font-bold uppercase tracking-widest py-4 hover:bg-transparent hover:text-[#00ffcc] hover:border hover:border-[#00ffcc] transition-all duration-300 disabled:opacity-30 disabled:hover:bg-[#00ffcc]"
-              >
-                {txLoading ? 'Submitting to Soroban...' : 'Execute Repo Deal'}
-              </button>
-            </div>
-
-          </div>
-
-          {/* Column Right: Interactive 3D Canvas / Inspector (Broken Grid: Span 5 overlapping) */}
-          <div className="col-span-12 lg:col-span-5 h-[650px] bg-[#0b0f19]/40 border border-[#1A2035]/80 p-2 rounded-none backdrop-blur-md rotate-1 relative z-10 lg:-ml-6 lg:mt-12">
-            <VaultScene isVerified={isVerified} scrollProgress={scrollProgress} />
           </div>
 
         </div>
