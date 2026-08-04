@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 import { BackendWakeup } from "@/components/layout/BackendWakeup";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 
 export default function RootLayout({
   children,
@@ -28,7 +29,9 @@ export default function RootLayout({
       </head>
       <body className={`${spaceGrotesk.variable} min-h-full flex flex-col bg-black text-white`}>
         <BackendWakeup />
-        {children}
+        <SmoothScroll>
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );
