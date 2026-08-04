@@ -11,7 +11,7 @@ export function BackendWakeup() {
     
     const checkHealth = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://astra-9mg6.onrender.com';
         const res = await fetch(`${API_URL}/healthz`, { cache: 'no-store' });
         
         if (res.ok) {
