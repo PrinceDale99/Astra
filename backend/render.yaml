@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: astra-repo-backend
+    env: docker
+    plan: free
+    region: ohio
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
