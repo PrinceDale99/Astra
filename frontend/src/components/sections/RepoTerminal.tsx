@@ -79,9 +79,9 @@ export default function RepoTerminal() {
     setErrorMessage(null);
     try {
       const hash = await submitCreateRepoDeal({
-        contractId: 'CDA34REPOSOROBANCONTRACTIDTESTNETXXXXX', // Mock or active deployed contract address
+        contractId: 'CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM', // Deployed Astra Repo Testnet Contract
         borrower: publicKey,
-        collateralToken: 'CASCOLLATERALYLDS34TOKENIDXXXXX', // Tokenized Treasury token address
+        collateralToken: 'CCOCRUW646G44OIRN5L7VK6A7CURX5VYARHYYTJWRKSF25ON3P734AVP', // Deployed YLDS Testnet Asset
         collateralAmount,
         borrowXlmAmount: requestedLoanXLM,
         proofBytes: zkProofData.proofBytes,

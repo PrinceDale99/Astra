@@ -10,15 +10,21 @@ export class OracleService {
     }
 
     try {
-      // In production, hit Stellar Horizon or SDEX to get real-time price ratios 
-      // between Native XLM and the target Tokenized Treasury asset (e.g. YLDS)
-      // Example: const response = await fetch('https://horizon.stellar.org/paths?...')
+      // Fetch live XLM price from CoinGecko API
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd');
       
-      // Simulating external Oracle response
+      if (!response.ok) {
+         throw new Error(`Oracle HTTP error: ${response.status}`);
+      }
+      
+      const json = await response.json();
+      const xlmUsd = json.stellar.usd;
+      const yldsUsd = 1.00; // YLDS is pegged to a $1 Treasury bill
+
       const rates = {
-        xlm_usd: 0.125,
-        ylds_usd: 1.00, // Assuming yield-bearing stable or treasury peg
-        implied_ratio_xlm_ylds: 1.00 / 0.125, // 8 XLM per YLDS
+        xlm_usd: xlmUsd,
+        ylds_usd: yldsUsd,
+        implied_ratio_xlm_ylds: yldsUsd / xlmUsd,
         timestamp: now
       };
 

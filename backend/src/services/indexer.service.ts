@@ -20,22 +20,42 @@ export class IndexerService {
     return this.connected;
   }
 
+  private lastLedger: number = 0;
+
   public async startPolling() {
     console.log('Starting Soroban Event Indexer...');
     this.connected = true;
+
+    try {
+      const latest = await this.server.getLatestLedger();
+      this.lastLedger = latest.sequence;
+    } catch (e) {
+      console.warn('Could not fetch latest ledger, defaulting to recent.', e);
+      this.lastLedger = 0;
+    }
     
-    // Simulating polling logic, using a simple interval to avoid heavy websocket/long-polling loops 
-    // on a free-tier server that might be spun down.
     setInterval(async () => {
       try {
-        // Example: Poll for recent ledger events
-        // const response = await this.server.getEvents({
-        //   startLedger: 0,
-        //   filters: [{ type: "contract", contractIds: ["YOUR_CONTRACT_ID"] }]
-        // });
+        if (this.lastLedger === 0) {
+          const latest = await this.server.getLatestLedger();
+          this.lastLedger = latest.sequence;
+          return;
+        }
+
+        const response = await this.server.getEvents({
+          startLedger: this.lastLedger,
+          filters: [
+            { 
+              type: "contract", 
+              contractIds: ["CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM"] 
+            }
+          ]
+        });
         
-        // Mock processing for demonstration
-        // response.events.forEach(event => this.processEvent(event));
+        if (response.events && response.events.length > 0) {
+          response.events.forEach(event => this.processEvent(event));
+          this.lastLedger = response.latestLedger;
+        }
       } catch (err) {
         console.error('Error polling events:', err);
       }
@@ -43,8 +63,10 @@ export class IndexerService {
   }
 
   private processEvent(event: any) {
-    // Logic to decode Soroban XDR event topics: create_repo, repay_deal, liquidate_deal
-    // Update this.dealsCache.set(dealId, parsedData);
+    // Basic event decoding - in a full production system, we decode the XDR
+    // Here we just store the raw event for the UI to consume if it matches
+    const dealId = event.id; // Event ID can serve as a unique deal ID for now
+    this.dealsCache.set(dealId, event);
   }
 
   public getActiveDealsForBorrower(borrowerAddress: string) {
