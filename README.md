@@ -181,7 +181,7 @@ Step 3: Native Verification (contracts/astra_repo/src/lib.rs)
 | **Blockchain** | Stellar Soroban, Rust SDK v27+, XLM, Freighter API v6 |
 | **ZK Proofs** | Circom 2.x, SnarkJS, Groth16, BN254 Curve |
 | **Data/Oracles** | Stellar Horizon REST API |
-| **Deployment** | Render (Backend), Vercel (Frontend - Placeholder) |
+| **Deployment** | [Render (Backend)](https://astra-9mg6.onrender.com), Vercel (Frontend - Placeholder) |
 
 ---
 
