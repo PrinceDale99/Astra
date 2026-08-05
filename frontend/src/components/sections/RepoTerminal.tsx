@@ -116,7 +116,7 @@ export default function RepoTerminal() {
   }, [connected, currentStep]);
 
   return (
-    <div className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black font-sans overflow-x-hidden">
 
       {/* Success Modal — rendered on top of everything when txHash is available */}
       {txHash && (

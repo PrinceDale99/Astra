@@ -80,7 +80,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black overflow-hidden font-sans">
+    <main className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black overflow-x-hidden font-sans">
       
       {/* Immersive 3D Background */}
       <div className="fixed inset-0 z-0 opacity-30 pointer-events-none">
