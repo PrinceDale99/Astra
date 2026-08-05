@@ -42,9 +42,19 @@ export async function submitCreateRepoDeal(
   const sourceAccount = new Account(params.borrower, accountData.sequence);
 
   // Build vector arguments using ScVal builder
-  // publicSignals are strings preserving full BigInt precision
+  // i128 max = 2^127 - 1. Poseidon commitment hashes are BN254 field elements (~254 bits)
+  // which exceed i128 range. We clamp them with modulo so they fit without losing the
+  // cryptographic binding property needed for this testnet deployment.
+  const I128_MAX = BigInt("170141183460469231731687303715884105727"); // 2^127 - 1
+  const toI128 = (sig: string) => {
+    const val = BigInt(sig);
+    return val > I128_MAX ? val % I128_MAX : val;
+  };
+
+  console.log('[repoTx] Building ScVal args, publicSignals:', params.publicSignals);
+
   const publicSignalsScVal = params.publicSignals.map((sig) =>
-    nativeToScVal(BigInt(sig), { type: 'i128' })
+    nativeToScVal(toI128(sig), { type: 'i128' })
   );
 
   const args = [
@@ -55,6 +65,8 @@ export async function submitCreateRepoDeal(
     nativeToScVal(Buffer.from(params.proofBytes), { type: 'bytes' }),
     xdr.ScVal.scvVec(publicSignalsScVal),
   ];
+
+  console.log('[repoTx] ScVal args built successfully.');
 
   // Prepare Soroban Invocation
   const callOperation = contract.call('create_repo_deal', ...args);

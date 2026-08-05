@@ -90,6 +90,7 @@ export default function RepoTerminal() {
       });
       setTxHash(hash);
     } catch (err: any) {
+      console.error('[handleExecuteRepo] FAILED:', err);
       setErrorMessage(err.message || 'Soroban transaction failed.');
     } finally {
       setTxLoading(false);
