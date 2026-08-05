@@ -6,6 +6,7 @@ import { generateRepoHealthProof } from '../../lib/zk/prover';
 import { submitCreateRepoDeal } from '../../lib/stellar/repoTx';
 import VaultScene from '../3d/VaultScene';
 import KineticHeading from '../ui/KineticHeading';
+import DealConfirmedModal from '../ui/DealConfirmedModal';
 import { Shield, Coins, Calendar, Key, AlertCircle, CheckCircle, Terminal, ArrowRight, Lock } from 'lucide-react';
 
 export default function RepoTerminal() {
@@ -88,13 +89,24 @@ export default function RepoTerminal() {
         publicSignals: zkProofData.publicSignals,
       });
       setTxHash(hash);
-      setCurrentStep(6); // Done
     } catch (err: any) {
       setErrorMessage(err.message || 'Soroban transaction failed.');
     } finally {
       setTxLoading(false);
     }
   };
+
+  const handleReset = () => {
+    setCurrentStep(1);
+    setIsVerified(false);
+    setZkProofData(null);
+    setTxHash(null);
+    setErrorMessage(null);
+  };
+
+  const computedHealthFactor = Math.round(
+    ((collateralAmount * oraclePriceXLM) / requestedLoanXLM) * 100
+  );
 
   // Auto-advance from Step 1 if connected
   useEffect(() => {
@@ -105,6 +117,17 @@ export default function RepoTerminal() {
 
   return (
     <div className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black font-sans overflow-hidden">
+
+      {/* Success Modal — rendered on top of everything when txHash is available */}
+      {txHash && (
+        <DealConfirmedModal
+          txHash={txHash}
+          collateralAmount={collateralAmount}
+          borrowedXLM={requestedLoanXLM}
+          healthFactor={computedHealthFactor}
+          onReset={handleReset}
+        />
+      )}
       {/* 3D Background */}
       <div className="fixed inset-0 z-0 opacity-40 pointer-events-none transition-opacity duration-1000" style={{ opacity: isVerified ? 0.6 : 0.3 }}>
         <VaultScene isVerified={isVerified} scrollProgress={scrollProgress} />
@@ -347,47 +370,19 @@ export default function RepoTerminal() {
 
             {currentStep >= 5 && (
               <div className="mt-6">
-                {txHash ? (
-                   <div className="border border-emerald-950 bg-emerald-950/40 p-6 font-mono">
-                     <div className="flex gap-4 items-start">
-                        <CheckCircle className="h-8 w-8 text-emerald-400 flex-shrink-0" />
-                        <div>
-                          <p className="font-bold text-emerald-400 uppercase tracking-widest text-lg mb-2">Deal Executed</p>
-                          <p className="text-zinc-400 text-sm mb-4">The ZK Proof has been verified by the Soroban CAP-80 host primitives and your XLM loan has been dispersed.</p>
-                          <div className="bg-black/60 border border-emerald-900/50 p-4">
-                            <p className="text-[10px] uppercase text-zinc-500 mb-1">Transaction Hash</p>
-                            <p className="text-xs text-emerald-200 break-all select-all">{txHash}</p>
-                          </div>
-                          
-                          <button
-                            onClick={() => {
-                              setCurrentStep(1);
-                              setIsVerified(false);
-                              setZkProofData(null);
-                              setTxHash(null);
-                            }}
-                            className="mt-6 border border-zinc-700 bg-transparent text-zinc-300 font-mono text-xs uppercase tracking-widest px-6 py-2 hover:bg-zinc-800 transition-all duration-300"
-                          >
-                            Start New Deal
-                          </button>
-                        </div>
-                     </div>
-                   </div>
-                ) : (
-                  <button
-                    onClick={handleExecuteRepo}
-                    disabled={txLoading || !connected}
-                    className="w-full bg-[#00ffcc] text-black font-mono text-sm font-bold uppercase tracking-widest py-5 hover:bg-transparent hover:text-[#00ffcc] hover:border hover:border-[#00ffcc] transition-all duration-300 disabled:opacity-30 flex justify-center items-center gap-2"
-                  >
-                    {txLoading ? (
-                      <>
-                        <Terminal className="w-4 h-4 animate-spin" /> Submitting to Soroban...
-                      </>
-                    ) : (
-                      'Sign & Execute Deal'
-                    )}
-                  </button>
-                )}
+                <button
+                  onClick={handleExecuteRepo}
+                  disabled={txLoading || !connected}
+                  className="w-full bg-[#00ffcc] text-black font-mono text-sm font-bold uppercase tracking-widest py-5 hover:bg-transparent hover:text-[#00ffcc] hover:border hover:border-[#00ffcc] transition-all duration-300 disabled:opacity-30 flex justify-center items-center gap-2"
+                >
+                  {txLoading ? (
+                    <>
+                      <Terminal className="w-4 h-4 animate-spin" /> Submitting to Soroban...
+                    </>
+                  ) : (
+                    'Sign & Execute Deal'
+                  )}
+                </button>
               </div>
             )}
           </div>
