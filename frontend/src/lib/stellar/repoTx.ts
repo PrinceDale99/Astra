@@ -16,7 +16,8 @@ interface CreateRepoParams {
   collateralAmount: number;
   borrowXlmAmount: number;
   proofBytes: Uint8Array;
-  publicSignals: number[];
+  // Kept as strings to preserve full BigInt precision from Poseidon commitment hash
+  publicSignals: string[];
 }
 
 export async function submitCreateRepoDeal(
@@ -30,20 +31,19 @@ export async function submitCreateRepoDeal(
   const contract = new Contract(params.contractId);
 
   // Fetch current account details to get sequence number
+  console.log('[repoTx] Fetching account sequence for:', params.borrower);
   const accountResponse = await fetch(`${horizonUrl}/accounts/${params.borrower}`);
   if (!accountResponse.ok) {
-    throw new Error('Account does not exist on Testnet. Fund it first using Friendbot.');
+    throw new Error('Account does not exist on Testnet. Fund it via Friendbot first.');
   }
   const accountData = await accountResponse.json();
-  
-  // Account is a direct export in newer SDKs
-  const sourceAccount = new Account(
-    params.borrower,
-    accountData.sequence
-  );
+  console.log('[repoTx] Account sequence:', accountData.sequence);
+
+  const sourceAccount = new Account(params.borrower, accountData.sequence);
 
   // Build vector arguments using ScVal builder
-  const publicSignalsScVal = params.publicSignals.map((sig) => 
+  // publicSignals are strings preserving full BigInt precision
+  const publicSignalsScVal = params.publicSignals.map((sig) =>
     nativeToScVal(BigInt(sig), { type: 'i128' })
   );
 
@@ -61,22 +61,24 @@ export async function submitCreateRepoDeal(
 
   // Build initial transaction
   let tx = new TransactionBuilder(sourceAccount, {
-    fee: '100000', // Baseline starting fee
+    fee: '100000',
     networkPassphrase: Networks.TESTNET,
   })
     .addOperation(callOperation)
     .setTimeout(30)
     .build();
 
-  // Simulate transaction to estimate exact CPU/Memory gas and rent/TTL extensions
+  // Simulate transaction to estimate exact CPU/Memory gas and TTL
+  console.log('[repoTx] Simulating transaction...');
   const simulation = await server.simulateTransaction(tx);
-  
+
   if (rpc.Api.isSimulationError(simulation)) {
-    throw new Error(`Simulation failed: ${simulation.error}`);
+    throw new Error(`Soroban simulation failed: ${simulation.error}`);
   }
 
-  // Assemble transaction from simulation results (updating footprint and resource limits)
+  // Assemble transaction from simulation results
   tx = rpc.assembleTransaction(tx, simulation).build();
+  console.log('[repoTx] Simulation OK. Requesting Freighter signature...');
 
   // Sign Transaction XDR via Freighter wallet extension
   const rawXdr = tx.toXDR();
@@ -84,39 +86,51 @@ export async function submitCreateRepoDeal(
     networkPassphrase: Networks.TESTNET,
   });
 
+  // Freighter v6: errors come back in the error field, not thrown
   if (signResult.error) {
-    throw new Error(`Freighter signing failed: ${signResult.error}`);
+    throw new Error(`Freighter signing failed: ${String(signResult.error)}`);
   }
+
+  if (!signResult.signedTxXdr) {
+    throw new Error('Freighter returned empty signature. Did you reject the transaction?');
+  }
+
+  console.log('[repoTx] Signed. Submitting to Soroban RPC...');
 
   const signedEnvelope = TransactionBuilder.fromXDR(signResult.signedTxXdr, Networks.TESTNET);
 
   // Submit the signed XDR to the RPC endpoint
   const sendResponse = await server.sendTransaction(signedEnvelope);
+  console.log('[repoTx] Send response status:', sendResponse.status);
 
   if (sendResponse.status === 'ERROR') {
     throw new Error(`Submission failed: ${JSON.stringify(sendResponse.errorResult)}`);
   }
 
-  // Poll for status confirmation
+  // Poll for confirmation
   let status: string = sendResponse.status;
-  let hash = sendResponse.hash;
+  const hash = sendResponse.hash;
   let pollAttempts = 0;
 
-  while (status === 'PENDING' && pollAttempts < 10) {
+  console.log('[repoTx] Polling for confirmation, hash:', hash);
+
+  while (status === 'PENDING' && pollAttempts < 15) {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     const txStatus = await server.getTransaction(hash);
     status = txStatus.status;
     pollAttempts++;
+    console.log(`[repoTx] Poll ${pollAttempts}: status = ${status}`);
 
     if (txStatus.status === rpc.Api.GetTransactionStatus.SUCCESS) {
+      console.log('[repoTx] Transaction confirmed!', hash);
       return hash;
     } else if (txStatus.status === rpc.Api.GetTransactionStatus.FAILED) {
-      throw new Error(`Transaction execution failed: ${JSON.stringify(txStatus.resultXdr)}`);
+      throw new Error(`Transaction execution failed on-chain: ${JSON.stringify(txStatus.resultXdr)}`);
     }
   }
 
   if (status === 'PENDING') {
-    throw new Error('Transaction execution timed out.');
+    throw new Error('Transaction timed out waiting for confirmation. Check Stellar Expert for status.');
   }
 
   return hash;
