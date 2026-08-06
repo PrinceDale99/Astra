@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import useFreighter from '../../hooks/useFreighter';
+import useWallet from '../../hooks/useWallet';
+import WalletSelectorModal from '../ui/WalletSelectorModal';
 import { generateRepoHealthProof } from '../../lib/zk/prover';
 import {
   submitCreateRepoDeal,
@@ -46,10 +47,32 @@ export default function RepoTerminal() {
     connected,
     publicKey,
     xlmBalance,
+    walletType,
     error: walletError,
     loading: walletLoading,
-    connectWallet,
-  } = useFreighter();
+    showSelector,
+    openSelector,
+    closeSelector,
+    connectFreighter,
+    connectWalletConnect,
+  } = useWallet();
+
+  // Connecting state for the wallet selector modal
+  const [connectingWallet, setConnectingWallet] = useState<'freighter' | 'walletconnect' | null>(null);
+  const [selectorError, setSelectorError] = useState<string | null>(null);
+
+  const handleWalletSelect = async (wallet: 'freighter' | 'walletconnect') => {
+    setConnectingWallet(wallet);
+    setSelectorError(null);
+    try {
+      const key = wallet === 'freighter' ? await connectFreighter() : await connectWalletConnect();
+      if (!key) setSelectorError(wallet === 'freighter' ? 'Freighter not found or access denied.' : 'WalletConnect cancelled.');
+    } catch (err: any) {
+      setSelectorError(err.message || 'Connection failed.');
+    } finally {
+      setConnectingWallet(null);
+    }
+  };
 
   // ─── Config (hardcoded from contracts.ts, optionally overridden by backend) ─
   const [yldsIssuer, setYldsIssuer] = useState<string>(YLDS_ASSET.issuer);
@@ -228,6 +251,16 @@ export default function RepoTerminal() {
   return (
     <div className="relative min-h-screen bg-[#030508] text-white selection:bg-[#00ffcc] selection:text-black font-sans overflow-x-hidden">
 
+      {/* Wallet Selector Modal */}
+      <WalletSelectorModal
+        isOpen={showSelector}
+        onClose={closeSelector}
+        onSelect={handleWalletSelect}
+        isConnecting={!!connectingWallet}
+        connectingWallet={connectingWallet}
+        error={selectorError}
+      />
+
       {/* Success Modal */}
       {txHash && (
         <DealConfirmedModal
@@ -287,14 +320,17 @@ export default function RepoTerminal() {
                   <div className="text-right">
                     <p className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">XLM Balance</p>
                     <p className="text-lg font-mono font-bold text-white">{xlmBalance} XLM</p>
+                    <p className="text-[10px] font-mono text-zinc-600 mt-1">
+                      via {walletType === 'freighter' ? '🟣 Freighter' : '🔵 WalletConnect'}
+                    </p>
                   </div>
                 ) : (
                   <button
-                    onClick={connectWallet}
+                    onClick={openSelector}
                     disabled={walletLoading}
                     className="border border-[#00ffcc] bg-[#00ffcc]/10 text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-6 py-3 hover:bg-[#00ffcc] hover:text-black transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
                   >
-                    {walletLoading ? 'Accessing...' : 'Connect Freighter'}
+                    {walletLoading ? 'Connecting...' : 'Connect Wallet'}
                     {!walletLoading && <ArrowRight className="w-4 h-4" />}
                   </button>
                 )}
