@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import useFreighter from '../../hooks/useFreighter';
 import { generateRepoHealthProof } from '../../lib/zk/prover';
 import { submitCreateRepoDeal } from '../../lib/stellar/repoTx';
+import { setupTrustline } from '../../lib/stellar/trustlineTx';
 import VaultScene from '../3d/VaultScene';
 import KineticHeading from '../ui/KineticHeading';
 import DealConfirmedModal from '../ui/DealConfirmedModal';
@@ -27,6 +28,8 @@ export default function RepoTerminal() {
   const [zkProofData, setZkProofData] = useState<any>(null);
   
   const [txLoading, setTxLoading] = useState<boolean>(false);
+  const [trustlineLoading, setTrustlineLoading] = useState<boolean>(false);
+  const [trustlineSet, setTrustlineSet] = useState<boolean>(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -74,17 +77,34 @@ export default function RepoTerminal() {
     }
   };
 
+  const handleSetupTrustline = async () => {
+    if (!publicKey) return;
+    setTrustlineLoading(true);
+    setErrorMessage(null);
+    try {
+      await setupTrustline(
+        publicKey,
+        'YLDS',
+        'GDVRZPTSO6D2LCGYTSLEMVZVXMDZXSOCDDGWJ4J5EOBURW3TPKD6GYAL'
+      );
+      setTrustlineSet(true);
+      setCurrentStep(6);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Trustline setup failed.');
+    } finally {
+      setTrustlineLoading(false);
+    }
+  };
+
   const handleExecuteRepo = async () => {
     if (!publicKey || !zkProofData) return;
     setTxLoading(true);
     setErrorMessage(null);
     try {
       const hash = await submitCreateRepoDeal({
-        contractId: 'CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM', // Deployed Astra Repo Testnet Contract
+        contractId: 'CDGKWTX3V2YZA4KTOKU6S6L5PXT6FAIU5IIEYMWFHSVYF2H27CWG6HC5',
         borrower: publicKey,
-        collateralToken: 'CCOCRUW646G44OIRN5L7VK6A7CURX5VYARHYYTJWRKSF25ON3P734AVP', // Deployed YLDS Testnet Asset
-        collateralAmount,
-        borrowXlmAmount: requestedLoanXLM,
+        xlmDepositAmount: collateralAmount,
         proofBytes: zkProofData.proofBytes,
         publicSignals: zkProofData.publicSignals,
       });
@@ -208,7 +228,7 @@ export default function RepoTerminal() {
               <div className="mt-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Collateral Amount (YLDS)</label>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Deposit Amount (XLM)</label>
                     <input
                       type="number"
                       value={collateralAmount}
@@ -273,7 +293,7 @@ export default function RepoTerminal() {
               <div className="mt-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Requested XLM Loan</label>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Estimated YLDS Return</label>
                     <input
                       type="number"
                       value={requestedLoanXLM}
@@ -283,7 +303,7 @@ export default function RepoTerminal() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Oracle Price (XLM/YLDS)</label>
+                    <label className="block text-xs uppercase font-mono text-zinc-400 mb-2">Oracle Price (XLM/XLM)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -361,15 +381,53 @@ export default function RepoTerminal() {
             )}
           </div>
 
-          {/* STEP 5: Execute Transaction */}
-          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 5 ? 'border-[#00ffcc] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(0,255,204,0.1)]' : currentStep > 5 ? 'border-emerald-500/50 bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+          {/* STEP 5: Setup Trustline */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 5 ? 'border-[#ffaa00] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(255,170,0,0.1)]' : currentStep > 5 ? 'border-[#1A2035] bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 5 ? 'text-[#00ffcc]' : 'text-zinc-300'}`}>
-                <span className="text-zinc-500 text-sm">05.</span> Protocol Execution
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 5 ? 'text-[#ffaa00]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">05.</span> Asset Trustline Setup
               </h2>
+              {currentStep > 5 && <CheckCircle className="text-emerald-500 w-5 h-5" />}
             </div>
 
             {currentStep >= 5 && (
+              <div className="mt-6">
+                <div className="bg-black/40 border border-[#1A2035] p-6 font-mono text-sm text-zinc-400 mb-6">
+                  <p>In order to receive YLDS Receipt Tokens from the smart contract, your stellar account must first establish a trustline with the YLDS asset issuer.</p>
+                </div>
+                
+                {trustlineSet ? (
+                  <div className="flex items-center gap-3 text-[#ffaa00] bg-[#ffaa00]/10 p-4 border border-[#ffaa00]/30 font-mono text-sm">
+                    <CheckCircle className="w-5 h-5" /> Trustline Established
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleSetupTrustline}
+                    disabled={trustlineLoading}
+                    className="w-full bg-[#ffaa00]/10 border border-[#ffaa00] text-[#ffaa00] font-mono text-sm font-bold uppercase tracking-widest py-5 hover:bg-[#ffaa00] hover:text-black transition-all duration-300 disabled:opacity-30 flex justify-center items-center gap-2"
+                  >
+                    {trustlineLoading ? (
+                      <>
+                        <Terminal className="w-4 h-4 animate-spin" /> Submitting to Freighter...
+                      </>
+                    ) : (
+                      'Establish YLDS Trustline'
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* STEP 6: Execute Transaction */}
+          <div className={`transition-all duration-500 border p-6 md:p-8 backdrop-blur-xl ${currentStep === 6 ? 'border-[#00ffcc] bg-[#0b0f19]/80 shadow-[0_0_30px_rgba(0,255,204,0.1)]' : currentStep > 6 ? 'border-emerald-500/50 bg-[#0b0f19]/40' : 'border-[#1A2035]/30 bg-[#0b0f19]/20 opacity-40 pointer-events-none'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`font-mono text-lg uppercase tracking-wider flex items-center gap-3 ${currentStep === 6 ? 'text-[#00ffcc]' : 'text-zinc-300'}`}>
+                <span className="text-zinc-500 text-sm">06.</span> Protocol Execution
+              </h2>
+            </div>
+
+            {currentStep >= 6 && (
               <div className="mt-6">
                 <button
                   onClick={handleExecuteRepo}

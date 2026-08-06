@@ -7,149 +7,145 @@ use soroban_sdk::{
     token, Address, Bytes, Env, Vec,
 };
 
-fn setup_test() -> (Env, AstraRepoClient, Address, Address, Address) {
+/// Sets up the test environment with:
+/// - A deployed AstraRepo contract
+/// - A mock native XLM SAC (funded to the contract for loan reserves)
+/// - A mock YLDS SAC (funded to the contract as the receipt token reserve)
+fn setup_test() -> (Env, AstraRepoClient<'static>, Address, Address, Address) {
     let env = Env::default();
-    env.mock_all_auths(); // Bypass auth for tests
+    env.mock_all_auths(); // Bypass auth for unit tests
 
     let contract_id = env.register_contract(None, AstraRepo);
     let client = AstraRepoClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
-    
-    // Mock native XLM token
-    let native_xlm_sac_id = env.register_stellar_asset_contract(admin.clone());
-    let native_xlm_sac = native_xlm_sac_id.clone();
-    
-    // Mock Collateral token
-    let collateral_token_id = env.register_stellar_asset_contract(admin.clone());
-    let collateral_token = collateral_token_id.clone();
 
-    // Mint some XLM to the contract
-    let xlm_client = token::AdminClient::new(&env, &native_xlm_sac_id);
-    xlm_client.mint(&client.address, &1_000_000_000);
+    // Mock native XLM SAC — the contract holds XLM as its loan reserve
+    let native_xlm_sac = env.register_stellar_asset_contract(admin.clone());
+    let xlm_admin = token::AdminClient::new(&env, &native_xlm_sac);
+    // Fund the contract with XLM so it can return XLM on repayment
+    xlm_admin.mint(&client.address, &100_000_000_000); // 10,000 XLM
 
-    // Initialize
-    client.initialize(&admin, &native_xlm_sac);
+    // Mock YLDS SAC — the contract holds YLDS as its receipt-token reserve
+    let ylds_sac = env.register_stellar_asset_contract(admin.clone());
+    let ylds_admin = token::AdminClient::new(&env, &ylds_sac);
+    // Fund the contract with 3,000,000 YLDS (in stroops: × 10_000_000)
+    ylds_admin.mint(&client.address, &3_000_000_0_000_000_i128);
 
-    (env, client, admin, native_xlm_sac, collateral_token)
+    // Initialize contract with both SAC addresses
+    client.initialize(&admin, &native_xlm_sac, &ylds_sac);
+
+    (env, client, admin, native_xlm_sac, ylds_sac)
 }
 
 #[test]
-fn test_create_and_repay_deal() {
-    let (env, client, admin, native_xlm_sac, collateral_token) = setup_test();
+fn test_create_deal_and_repay() {
+    let (env, client, _admin, native_xlm_sac, ylds_sac) = setup_test();
     let borrower = Address::generate(&env);
 
-    // Mint collateral to borrower
-    let col_admin_client = token::AdminClient::new(&env, &collateral_token);
-    col_admin_client.mint(&borrower, &100_000);
+    let xlm_client = token::Client::new(&env, &native_xlm_sac);
+    let ylds_client = token::Client::new(&env, &ylds_sac);
+    let xlm_admin = token::AdminClient::new(&env, &native_xlm_sac);
 
-    let xlm_token_client = token::Client::new(&env, &native_xlm_sac);
-    let col_token_client = token::Client::new(&env, &collateral_token);
+    // Fund borrower with XLM to deposit
+    let deposit_amount: i128 = 50_000_0_000_000; // 5,000 XLM
+    xlm_admin.mint(&borrower, &deposit_amount);
 
-    // Borrower creates a deal
-    env.ledger().set_timestamp(1000);
+    env.ledger().set_timestamp(1_000);
+
     let proof = Bytes::new(&env);
     let public_signals = Vec::new(&env);
-    
-    let deal_id = client.create_repo_deal(
-        &borrower,
-        &collateral_token,
-        &50_000,
-        &10_000,
-        &proof,
-        &public_signals,
-    );
 
+    // Borrower deposits XLM → should receive equivalent YLDS
+    let deal_id = client.create_repo_deal(&borrower, &deposit_amount, &proof, &public_signals);
     assert_eq!(deal_id, 1);
-    assert_eq!(col_token_client.balance(&borrower), 50_000);
-    assert_eq!(col_token_client.balance(&client.address), 50_000);
-    assert_eq!(xlm_token_client.balance(&borrower), 10_000);
 
-    // Borrower repays 
-    // Wait for timestamp a little bit but before due
-    env.ledger().set_timestamp(1500);
+    // After deal: borrower has 0 XLM (deposited) and deposit_amount YLDS (received)
+    assert_eq!(xlm_client.balance(&borrower), 0);
+    assert_eq!(ylds_client.balance(&borrower), deposit_amount);
 
-    // Give borrower some extra XLM to pay interest (10_000 + 1% = 10_100)
-    let xlm_admin_client = token::AdminClient::new(&env, &native_xlm_sac);
-    xlm_admin_client.mint(&borrower, &100);
+    // Contract holds the deposited XLM
+    assert_eq!(xlm_client.balance(&client.address), 100_000_000_000 + deposit_amount);
 
-    client.repay_and_release(&deal_id, &borrower);
+    // Settle deal: borrower returns YLDS → gets XLM back (minus 1% interest)
+    env.ledger().set_timestamp(1_500); // before maturity
 
-    // Check balances
-    assert_eq!(col_token_client.balance(&borrower), 100_000); // Got collateral back
-    assert_eq!(col_token_client.balance(&client.address), 0);
-    assert_eq!(xlm_token_client.balance(&borrower), 0); // Paid 10_100
+    let interest = deposit_amount / 100;
+    let expected_xlm_return = deposit_amount - interest;
+
+    client.repay_and_close(&deal_id, &borrower);
+
+    // Borrower received XLM back minus 1% interest
+    assert_eq!(xlm_client.balance(&borrower), expected_xlm_return);
+    // Borrower's YLDS are gone (returned to contract)
+    assert_eq!(ylds_client.balance(&borrower), 0);
 }
 
 #[test]
-fn test_liquidate_late_repayment() {
-    let (env, client, admin, native_xlm_sac, collateral_token) = setup_test();
+fn test_liquidation_of_overdue_deal() {
+    let (env, client, _admin, native_xlm_sac, ylds_sac) = setup_test();
     let borrower = Address::generate(&env);
 
-    // Mint collateral to borrower
-    let col_admin_client = token::AdminClient::new(&env, &collateral_token);
-    col_admin_client.mint(&borrower, &100_000);
+    let xlm_admin = token::AdminClient::new(&env, &native_xlm_sac);
+    let deposit_amount: i128 = 10_000_0_000_000; // 1,000 XLM
+    xlm_admin.mint(&borrower, &deposit_amount);
 
-    env.ledger().set_timestamp(1000);
-    
-    let proof = Bytes::new(&env);
-    let public_signals = Vec::new(&env);
-    
+    env.ledger().set_timestamp(1_000);
+
     let deal_id = client.create_repo_deal(
         &borrower,
-        &collateral_token,
-        &50_000,
-        &10_000,
-        &proof,
-        &public_signals,
-    );
-
-    // Fast forward ledger timestamp past the due date (1000 + 86400 = 87400)
-    // "What happens if a borrower tries to repay 1 second after the expiration timestamp?"
-    env.ledger().set_timestamp(87401);
-
-    // Borrower tries to repay, which might succeed depending on if it's liquidated yet.
-    // In our design, liquidation must be triggered. Let's trigger liquidation first.
-    client.liquidate_dutch_auction(&deal_id);
-
-    // Give borrower extra XLM just in case they try to pay
-    let xlm_admin_client = token::AdminClient::new(&env, &native_xlm_sac);
-    xlm_admin_client.mint(&borrower, &100);
-
-    // Now borrower tries to repay but should fail with DealLiquidated
-    let res = client.try_repay_and_release(&deal_id, &borrower);
-    assert!(res.is_err());
-    assert_eq!(res.err().unwrap().unwrap(), Error::DealLiquidated);
-}
-
-#[test]
-fn test_oracle_drop_liquidation() {
-    // "What happens if the borrower's collateral is liquidated while the oracle drops 50%?"
-    // In the current logic, Oracle prices are validated via the ZK Proof during creation.
-    // An external keeper checks prices and if health drops, they'd trigger liquidation early.
-    // We haven't implemented pre-expiration price drop liquidation (requires feeding oracle prices to contract).
-    // But we can simulate standard liquidation mechanics.
-    let (env, client, admin, native_xlm_sac, collateral_token) = setup_test();
-    let borrower = Address::generate(&env);
-    
-    let col_admin_client = token::AdminClient::new(&env, &collateral_token);
-    col_admin_client.mint(&borrower, &100_000);
-    env.ledger().set_timestamp(1000);
-    
-    let deal_id = client.create_repo_deal(
-        &borrower,
-        &collateral_token,
-        &50_000,
-        &10_000,
+        &deposit_amount,
         &Bytes::new(&env),
         &Vec::new(&env),
     );
 
-    env.ledger().set_timestamp(90000); // Past due
-    client.liquidate_dutch_auction(&deal_id);
+    // Fast-forward past the 24h maturity window (86400 seconds)
+    env.ledger().set_timestamp(1_000 + 86_401);
 
-    // At this point, the contract holds 50_000 collateral and the borrower kept the 10_000 XLM.
-    // An external Dutch auction contract would claim the collateral from `client.address`.
-    let col_token_client = token::Client::new(&env, &collateral_token);
-    assert_eq!(col_token_client.balance(&client.address), 50_000);
+    // A keeper triggers liquidation
+    client.liquidate_overdue(&deal_id);
+
+    // Borrower's YLDS are now worthless — they cannot call repay_and_close
+    let res = client.try_repay_and_close(&deal_id, &borrower);
+    assert!(res.is_err());
+    assert_eq!(res.err().unwrap().unwrap(), Error::DealLiquidated);
+
+    // Contract retained the XLM collateral
+    let xlm_client = token::Client::new(&env, &native_xlm_sac);
+    assert!(xlm_client.balance(&client.address) >= deposit_amount);
+}
+
+#[test]
+fn test_insufficient_ylds_reserves_is_rejected() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register_contract(None, AstraRepo);
+    let client = AstraRepoClient::new(&env, &contract_id);
+    let admin = Address::generate(&env);
+
+    let native_xlm_sac = env.register_stellar_asset_contract(admin.clone());
+    let ylds_sac = env.register_stellar_asset_contract(admin.clone());
+
+    // Fund contract with XLM but ZERO YLDS
+    let xlm_admin = token::AdminClient::new(&env, &native_xlm_sac);
+    xlm_admin.mint(&client.address, &1_000_000_000);
+
+    client.initialize(&admin, &native_xlm_sac, &ylds_sac);
+
+    let borrower = Address::generate(&env);
+    xlm_admin.mint(&borrower, &10_000_0_000_000);
+
+    let res = client.try_create_repo_deal(
+        &borrower,
+        &10_000_0_000_000,
+        &Bytes::new(&env),
+        &Vec::new(&env),
+    );
+
+    assert!(res.is_err());
+    assert_eq!(
+        res.err().unwrap().unwrap(),
+        Error::InsufficientYldsReserves
+    );
 }

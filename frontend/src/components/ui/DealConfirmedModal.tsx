@@ -98,7 +98,7 @@ export default function DealConfirmedModal({
                 <Shield className="w-3.5 h-3.5 text-zinc-600" />
                 Collateral Deposited
               </span>
-              <span className="text-white font-bold">{collateralAmount.toLocaleString()} YLDS</span>
+              <span className="text-white font-bold">{collateralAmount.toLocaleString()} XLM</span>
             </div>
 
             <div className="h-px bg-[#1A2035]" />

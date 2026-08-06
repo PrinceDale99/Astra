@@ -12,9 +12,7 @@ import { signTransaction } from '@stellar/freighter-api';
 interface CreateRepoParams {
   contractId: string;
   borrower: string;
-  collateralToken: string;
-  collateralAmount: number;
-  borrowXlmAmount: number;
+  xlmDepositAmount: number;
   proofBytes: Uint8Array;
   // Kept as strings to preserve full BigInt precision from Poseidon commitment hash
   publicSignals: string[];
@@ -59,9 +57,7 @@ export async function submitCreateRepoDeal(
 
   const args = [
     nativeToScVal(params.borrower, { type: 'address' }),
-    nativeToScVal(params.collateralToken, { type: 'address' }),
-    nativeToScVal(BigInt(params.collateralAmount), { type: 'i128' }),
-    nativeToScVal(BigInt(params.borrowXlmAmount), { type: 'i128' }),
+    nativeToScVal(BigInt(params.xlmDepositAmount), { type: 'i128' }),
     nativeToScVal(Buffer.from(params.proofBytes), { type: 'bytes' }),
     xdr.ScVal.scvVec(publicSignalsScVal),
   ];
