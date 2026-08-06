@@ -18,8 +18,8 @@ RUN npm install --production
 
 # Copy compiled files from builder
 COPY --from=builder /app/dist ./dist
-# Copy public ZK files (ensure these are mapped or copied in real deployment)
-# COPY public/ ./public/
+# Copy public ZK files (zkeys, wasm provers)
+COPY public/ ./public/
 
 ENV NODE_ENV=production
 ENV PORT=8080

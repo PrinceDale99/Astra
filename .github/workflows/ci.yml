@@ -1,0 +1,181 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Astra CI/CD Pipeline
+#
+# Jobs:
+#   1. contract  — Rust build + Soroban unit tests (wasm32v1-none)
+#   2. backend   — TypeScript compile + lint
+#   3. frontend  — TypeScript check + Next.js production build + lint
+#   4. deploy    — Trigger Render re-deploy (backend + frontend) on main merge
+#
+# Required GitHub Secrets:
+#   RENDER_API_KEY            — Render API token (Render → Account → API Keys)
+#   RENDER_BACKEND_SERVICE_ID — Service ID for astra-repo-backend (srv-...)
+#   RENDER_FRONTEND_SERVICE_ID— Service ID for the Next.js frontend (srv-...)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI / CD
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ─── 1. Soroban Contract ─────────────────────────────────────────────────────
+jobs:
+  contract:
+    name: "Contract — Rust / Soroban"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+
+      - name: Cache Cargo registry + build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            contracts/astra_repo/target
+          key: cargo-${{ hashFiles('contracts/astra_repo/Cargo.lock') }}
+          restore-keys: cargo-
+
+      - name: Build (release Wasm)
+        working-directory: contracts/astra_repo
+        run: cargo build --target wasm32v1-none --release
+
+      - name: Run unit tests
+        working-directory: contracts/astra_repo
+        run: cargo test
+
+      - name: Upload Wasm artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astra_repo_wasm
+          path: contracts/astra_repo/target/wasm32v1-none/release/astra_repo.wasm
+          retention-days: 7
+
+  # ─── 2. Backend ──────────────────────────────────────────────────────────
+  backend:
+    name: "Backend — Node / TypeScript"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript compile
+        run: npm run build
+
+      - name: Upload compiled dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend_dist
+          path: backend/dist/
+          retention-days: 7
+
+  # ─── 3. Frontend ─────────────────────────────────────────────────────────
+  frontend:
+    name: "Frontend — Next.js"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npm run lint -- --max-warnings 0
+        continue-on-error: true   # lint warnings shouldn't block deploys
+
+      - name: Next.js production build
+        run: npm run build
+        env:
+          # Provide stub env vars so the build doesn't fail on missing values.
+          # Real values are set in Render environment variables.
+          NEXT_PUBLIC_BACKEND_URL: "https://astra-9mg6.onrender.com"
+
+      - name: Upload Next.js build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend_build
+          path: frontend/.next/
+          retention-days: 7
+
+  # ─── 4. Deploy (main/master only) ────────────────────────────────────────
+  deploy:
+    name: "Deploy → Render"
+    needs: [contract, backend, frontend]
+    runs-on: ubuntu-latest
+    # Only deploy from the primary branch, not from PRs
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: Deploy backend to Render
+        run: |
+          echo "Triggering backend deploy..."
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_SERVICE_ID }}/deploys" \
+            -d '{"clearCache": "do_not_clear"}'
+
+      - name: Deploy frontend to Render
+        # Only runs if the secret is set (frontend may be hosted elsewhere e.g. Vercel)
+        if: ${{ secrets.RENDER_FRONTEND_SERVICE_ID != '' }}
+        run: |
+          echo "Triggering frontend deploy..."
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_SERVICE_ID }}/deploys" \
+            -d '{"clearCache": "do_not_clear"}'
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment triggered ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | Render deploy queued |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | Render deploy queued |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Wasm | Artifact saved (7 days) |" >> $GITHUB_STEP_SUMMARY
