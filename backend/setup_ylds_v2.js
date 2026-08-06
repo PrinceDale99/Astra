@@ -33,7 +33,7 @@ const YLDS_SAC_ID = 'CBT2FAHTV57M4LFZREZNOU7XYQQZWKX3GKCF3RGVX7DJVYNFOVJ3TFVT';
 
 // ─── Target: NEW AstraRepo contract (will be set after deploy_contract.js runs) ─
 // For now, we fund the existing contract; update once re-deployed.
-const TARGET_CONTRACT = process.argv[2] || 'CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM';
+const TARGET_CONTRACT = process.argv[2] || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
 
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const SOROBAN_URL = 'https://soroban-testnet.stellar.org';

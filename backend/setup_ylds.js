@@ -28,7 +28,7 @@ const {
   Contract,
 } = require('@stellar/stellar-sdk');
 
-const REPO_CONTRACT_ID = 'CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM';
+const REPO_CONTRACT_ID = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const SOROBAN_URL = 'https://soroban-testnet.stellar.org';
 const NETWORK = Networks.TESTNET;

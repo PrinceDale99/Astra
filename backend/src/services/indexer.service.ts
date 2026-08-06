@@ -47,7 +47,7 @@ export class IndexerService {
           filters: [
             { 
               type: "contract", 
-              contractIds: ["CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM"] 
+              contractIds: ["CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US"] 
             }
           ]
         });

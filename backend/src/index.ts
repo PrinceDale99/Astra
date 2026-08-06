@@ -88,7 +88,7 @@ app.get('/api/v1/oracle/rates', async (req, res) => {
  */
 app.get('/api/v1/config', (req, res) => {
   const config = {
-    astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM',
+    astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US',
     nativeXlmSac: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
     yldsSacId: process.env.YLDS_SAC_ID || '',
     yldsIssuer: process.env.YLDS_ISSUER || '',
