@@ -159,15 +159,21 @@ jobs:
             -d '{"clearCache": "do_not_clear"}'
 
       - name: Deploy frontend to Render
-        # Only runs if the secret is set (frontend may be hosted elsewhere e.g. Vercel)
-        if: ${{ secrets.RENDER_FRONTEND_SERVICE_ID != '' }}
+        # Guard is done inside the shell — secrets can't be compared in if: expressions
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+          API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
+          if [ -z "$SERVICE_ID" ]; then
+            echo "RENDER_FRONTEND_SERVICE_ID not set — skipping frontend deploy."
+            exit 0
+          fi
           echo "Triggering frontend deploy..."
           curl -s -o /dev/null -w "HTTP %{http_code}\n" \
             -X POST \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Authorization: Bearer $API_KEY" \
             -H "Content-Type: application/json" \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_SERVICE_ID }}/deploys" \
+            "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
             -d '{"clearCache": "do_not_clear"}'
 
       - name: Deployment summary
