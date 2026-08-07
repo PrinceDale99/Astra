@@ -262,6 +262,15 @@ An automated static analysis and manual security review is scheduled.
 
 ---
 
+## Continuous Integration & Deployment (CI/CD)
+
+Astra uses an automated GitHub Actions pipeline for continuous integration and delivery.
+The CI/CD pipeline runs Rust Soroban tests, builds the smart contract, compiles the Node.js orchestration engine, and deploys the Next.js frontend and backend using Vercel and Render.
+
+<img src="public/cicd.png" alt="Astra CI/CD Pipeline in GitHub Actions" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
+
+---
+
 ## Demo & Links
 
 | | Link |
