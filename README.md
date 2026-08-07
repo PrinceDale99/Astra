@@ -25,7 +25,7 @@
 
 <br/>
 
-[ Live App]([PLACEHOLDER_LIVE_URL])  [ Demo Video]([PLACEHOLDER_VIDEO_URL])  [ Pitch Deck]([PLACEHOLDER_DECK_URL])  [ Community Win]([PLACEHOLDER_WIN_URL])
+[ Live App](https://astra-seven-gules.vercel.app/)  [ Demo Video]([PLACEHOLDER_VIDEO_URL])  [ Pitch Deck]([PLACEHOLDER_DECK_URL])  [ Community Win]([PLACEHOLDER_WIN_URL])
 
 </div>
 
@@ -258,6 +258,7 @@ An automated static analysis and manual security review is scheduled.
 |---|---|
 | **Contract Address** | `CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM` |
 | **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM) |
+<img src="public/testnet.png" alt="Testnet Deployment Screenshot" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 <img src="public/transact.png" alt="Successful Testnet Transaction & Result" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
 ---
@@ -275,7 +276,7 @@ The CI/CD pipeline runs Rust Soroban tests, builds the smart contract, compiles 
 
 | | Link |
 |---|---|
-|  **Live App** | [PLACEHOLDER_URL] |
+|  **Live App** | [https://astra-seven-gules.vercel.app/](https://astra-seven-gules.vercel.app/) |
 |  **Demo Video** | [PLACEHOLDER_URL] |
 |  **Pitch Deck** | [PLACEHOLDER_URL] |
 
