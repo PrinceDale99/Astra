@@ -259,7 +259,6 @@ An automated static analysis and manual security review is scheduled.
 | **Contract Address** | `CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM` |
 | **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM) |
 <img src="public/testnet.png" alt="Testnet Deployment Screenshot" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
-<img src="public/transact.png" alt="Successful Testnet Transaction & Result" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
 ---
 
@@ -299,12 +298,12 @@ We actively collect feedback to prioritize our roadmap.
  **[View Feedback & Data Export (Placeholder)](#)**
 
 ### Improvements Built from Feedback
-
+<!-- 
 | Feature | Feedback That Drove It |
 |---|---|
 | Chronological Wizard UI | *"The broken grid is visually stunning but hard to follow for financial ops."* |
 | Node.js Offloading | *"Client-side WASM compilation crashes on low-end institutional virtual desktops."* |
-
+-->
 ---
 
 ## Community Recognition
