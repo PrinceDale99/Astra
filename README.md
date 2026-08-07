@@ -407,7 +407,12 @@ Traditional capital markets rely on Repos for overnight and short-term liquidity
 ## UX & Accessibility
 
 1. **Chronological ZK Wizard**  Simplifies the complex mathematics of Zero-Knowledge proofs into a simple 5-step terminal flow.
-2. **Freighter v6 Integration**  Seamless wallet connectivity standard for the Stellar ecosystem.
+2. **Flexible Wallet Integrations**  Seamless wallet connectivity standard for the Stellar ecosystem via WalletConnect or Freighter.
+
+<div align="center">
+  <img src="public/wallet.png" alt="Astra Wallet Options - Freighter and WalletConnect" width="60%" style="border-radius:12px; margin: 1rem 0;"/>
+</div>
+
 3. **Parallax Feedback**  Visual confirmation of on-chain states via the interactive 3D WebGL background.
 
 ---
