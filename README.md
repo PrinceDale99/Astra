@@ -258,8 +258,7 @@ An automated static analysis and manual security review is scheduled.
 |---|---|
 | **Contract Address** | `CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM` |
 | **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CCFCMYKC3U5UEVQBJ22LOV525ZYIZM62RMILKRJBDDPL4TOPMXZEEPMM) |
-
-<img src="[PLACEHOLDER_IMAGE_URL]" alt="Testnet Screenshot" width="100%"/>
+<img src="public/transact.png" alt="Successful Testnet Transaction & Result" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
 ---
 
