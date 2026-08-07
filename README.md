@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- HERO BANNER -->
-<img src="[PLACEHOLDER_IMAGE_URL]" alt="Astra App Screenshot" width="100%" style="border-radius:16px"/>
+<img src="public/walletconnected.png" alt="Astra App Screenshot - Wallet Connected & Balance Displayed" width="100%" style="border-radius:16px"/>
 
 <br/><br/>
 
