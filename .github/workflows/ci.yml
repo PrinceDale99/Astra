@@ -185,7 +185,9 @@ jobs:
       - name: Deploy frontend → Vercel (production)
         # vercel deploy reads VERCEL_ORG_ID and VERCEL_PROJECT_ID from env
         # automatically — no .vercel/project.json or vercel pull needed.
-        working-directory: frontend
+        # Run from repo root: Vercel already has Root Directory=frontend in
+        # its project settings, so we must NOT also set working-directory to
+        # frontend or the path doubles up (frontend/frontend).
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -194,6 +196,7 @@ jobs:
           URL=$(vercel deploy --prod --yes --token=$VERCEL_TOKEN)
           echo "Deployed to: $URL"
           echo "VERCEL_URL=$URL" >> $GITHUB_ENV
+
 
 
       # ── Summary ──────────────────────────────────────────────────────────
