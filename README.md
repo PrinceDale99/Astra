@@ -426,6 +426,13 @@ Traditional capital markets rely on Repos for overnight and short-term liquidity
 
 3. **Parallax Feedback**  Visual confirmation of on-chain states via the interactive 3D WebGL background.
 
+### Mobile Responsive UI
+Astra is fully optimized for mobile browsers, ensuring institutional and retail users can access their repos on the go without compromising the interactive 3D experience or functionality.
+
+<div align="center">
+  <img src="public/mobile.png" alt="Astra Mobile Responsive Interface" width="40%" style="border-radius:12px; margin: 1rem 0;"/>
+</div>
+
 ---
 
 ## Viability & Go-to-Market
