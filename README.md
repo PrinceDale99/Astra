@@ -351,6 +351,8 @@ stellar contract build
 cargo test
 ```
 
+<img src="public/cargotest.png" alt="Cargo Test Output showing passing tests" width="100%" style="border-radius:12px; margin-top: 1rem; margin-bottom: 1rem;"/>
+
 ### ZK Circuits
 ```bash
 cd circuits
