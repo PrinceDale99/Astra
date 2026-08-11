@@ -15,10 +15,9 @@ export function useRealtimeDeals(initialDeals: RealtimeDeal[] = []) {
   const [deals, setDeals] = useState<RealtimeDeal[]>(initialDeals);
   const [isLive, setIsLive] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
 
   useEffect(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
-
     function connect() {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;

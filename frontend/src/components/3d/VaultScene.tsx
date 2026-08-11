@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
+// @ts-ignore - postprocessing types may not be installed
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { useLiteMode } from '../../lib/LiteModeContext';
@@ -136,6 +137,8 @@ interface VaultSceneProps {
 export default function VaultScene({ isVerified, scrollProgress }: VaultSceneProps) {
   const [showWireframe, setShowWireframe] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const { isLiteMode } = useLiteMode();
+  const prefersReduced = useReducedMotion();
 
   useEffect(() => {
     const handleContextLoss = () => setHasError(true);

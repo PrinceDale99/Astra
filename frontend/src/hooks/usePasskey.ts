@@ -42,14 +42,14 @@ export async function registerPasskey(walletAddress: string): Promise<string> {
     throw new Error('WebAuthn is not supported in this browser.');
   }
 
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
+  const challenge = crypto.getRandomValues(new Uint8Array(32)) as Uint8Array<ArrayBuffer>;
 
   const credential = await navigator.credentials.create({
     publicKey: {
-      challenge,
+      challenge: challenge as unknown as ArrayBuffer,
       rp: { name: 'Astra Protocol', id: window.location.hostname },
       user: {
-        id: new TextEncoder().encode(walletAddress),
+        id: new TextEncoder().encode(walletAddress) as unknown as ArrayBuffer,
         name: walletAddress,
         displayName: `${walletAddress.substring(0, 8)}...`,
       },
@@ -118,12 +118,12 @@ export async function signWithPasskey(
   }
 
   const allowCredentials: PublicKeyCredentialDescriptor[] = [
-    { type: 'public-key', id: base64urlToBuffer(storedCredentialId) },
+    { type: 'public-key', id: base64urlToBuffer(storedCredentialId) as Uint8Array<ArrayBuffer> },
   ];
 
   const assertion = await navigator.credentials.get({
     publicKey: {
-      challenge,
+      challenge: challenge as Uint8Array<ArrayBuffer>,
       allowCredentials,
       userVerification: 'required',
       timeout: 60000,

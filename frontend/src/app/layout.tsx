@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 import { BackendWakeup } from "@/components/layout/BackendWakeup";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { LiteModeProvider } from "@/lib/LiteModeContext";
 
 export default function RootLayout({
   children,
@@ -28,9 +29,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${spaceGrotesk.variable} min-h-full flex flex-col bg-black text-white`}>
-        <BackendWakeup />
-          {children}
-        </SmoothScroll>
+        <LiteModeProvider>
+          <BackendWakeup />
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </LiteModeProvider>
       </body>
     </html>
   );
