@@ -148,11 +148,10 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <StatCard title="Total Value Locked" value={`$${(realTvl > 0 ? realTvl : 26.4).toFixed(1)}M`} icon={Database} trend="Live via XDR" delay={0.1} />
           <StatCard title="Total Deals Created" value={totalDeals.toString()} icon={Activity} trend="Live via XDR" delay={0.2} />
           <StatCard title="Active Institutions" value={activeInstitutions > 0 ? activeInstitutions.toString() : "14"} icon={Users} trend="Live via Indexer" delay={0.3} />
-          <StatCard title="Avg Proof Gen Time" value="142ms" icon={Clock} trend="Off-chain ZKP" delay={0.4} />
         </div>
 
         {/* Charts Row */}
