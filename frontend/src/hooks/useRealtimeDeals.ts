@@ -1,3 +1,4 @@
+/** @feature RealtimeDeals - WebSocket client with 3s auto-reconnect, merges NEW_DEAL events into state without full re-fetch, exposes isLive status */
 'use client';
 import { useState, useEffect, useRef } from 'react';
 
