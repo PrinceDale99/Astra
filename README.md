@@ -366,6 +366,23 @@ We actively collect feedback to prioritize our roadmap.
 
  **[View Feedback & Data Export](https://docs.google.com/spreadsheets/d/1k0M0O7Sxmf3DgErEpXx5vBHukidAlnZxH7k2hO0c_Ns/edit?usp=sharing)**
 
+### Feedback Summary
+
+Based on survey data collected from **52 users**, the overall sentiment is highly positive, though there is room for improvement regarding consistency and technical performance.
+
+**Average Ratings (Scale 1-5):**
+- ⭐ **4.33** – Ease of Use
+- ⭐ **4.27** – Met Initial Expectations
+- ⭐ **4.15** – Overall Quality
+- ⭐ **4.08** – Performance & Speed
+- ⭐ **3.96** – Reliability *(Users experienced occasional errors/inconsistencies)*
+
+**Key Takeaways from Written Feedback (8 Respondents):**
+- **UI/UX & Transparency:** The 3D vault scene causes lag on lower-end devices; users requested a toggle to disable animations. They also asked for better transparency on exactly when deals will be liquidated based on current reserves, and a dedicated history tab to track old, paid-off, or liquidated Soroban transactions.
+- **Performance:** The dashboard does not always update instantly. Users suggested a switch to WebSockets for real-time indexing and requested backend optimization to handle concurrent deal creations faster.
+- **Smart Contracts & Data:** Frustration with migrating to new contract addresses after bug fixes led to heavy requests for in-place upgradable contracts. Furthermore, dormant testnet deals expire or disappear, highlighting the need for a data recovery mechanism.
+- **Authentication:** Users expressed fatigue from repeatedly typing wallet passwords and recommended integrating FaceID or phone passkeys to streamline the login and signing process.
+
 ### Improvements Built from Feedback
 <!-- 
 | Feature | Feedback That Drove It |
