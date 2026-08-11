@@ -388,12 +388,20 @@ Feedback regarding smart contracts and data management highlighted frustrations 
 - **Authentication:** Users expressed fatigue from repeatedly typing wallet passwords and recommended integrating FaceID or phone passkeys to streamline the login and signing process.
 
 ### Improvements Built from Feedback
-<!-- 
-| Feature | Feedback That Drove It |
-|---|---|
-| Chronological Wizard UI | *"The broken grid is visually stunning but hard to follow for financial ops."* |
-| Node.js Offloading | *"Client-side WASM compilation crashes on low-end institutional virtual desktops."* |
--->
+
+The following V2 improvements were directly built in response to the survey results. Each row maps a user complaint to the shipped fix and its git commit.
+
+| # | User Feedback | Feature Shipped | Commit |
+|---|---------------|-----------------|--------|
+| 1 | *"Hard to determine when a deal will be liquidated based on current reserves"* | **Liquidation Risk Bar** — Dynamic color-coded margin ratio progress bar (green → amber → red) fetching live YLDS reserve data from the Soroban contract via `get_margin_ratio()` | `feat(contract): add upgrade, restore_deal, passkey, margin_ratio...` |
+| 2 | *"3D vault scene causes lag on lower-end devices"* | **Lite Mode Toggle** — Header button to completely unmount the Three.js canvas and replace it with a lightweight CSS + SVG placeholder. Auto-activates on `prefers-reduced-motion` OS setting | `feat(frontend): add Lite Mode, VaultPlaceholder...` |
+| 3 | *"Strong demand for a dedicated history tab for old/liquidated transactions"* | **Deal History Page** — Paginated `/history` page with filter tabs (All / Repaid / Liquidated), borrower address search, and persistent SQLite-backed `deal_history` table | `feat(backend): add WebSocket, deal history API...` |
+| 4 | *"Dashboard does not always update instantly"* | **WebSocket Real-Time Indexer** — Replaced 10s polling loop with a WebSocket broadcast server; frontend `useRealtimeDeals` hook merges live events without full re-fetch. Green `● LIVE` badge on analytics page | `feat(backend): add WebSocket, deal history API...` |
+| 5 | *"Frustration migrating to new contract addresses after bug fixes"* | **Upgradeable Contract** — `upgrade()` function using `env.deployer().update_current_contract_wasm()` replaces WASM bytecode in-place. Contract address `CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US` is **permanent** across all future upgrades | `feat(contract): add upgrade, restore_deal, passkey, margin_ratio...` |
+| 6 | *"Dormant testnet deals expire or disappear"* | **State Archival + Restore Deal** — Switched `DealState` from `temporary()` to `persistent()` storage with 30-day TTL. Added `restore_deal()` contract function and amber `⚠ RESTORE DEAL` button on the frontend for archived deal recovery | `feat(contract): add upgrade, restore_deal, passkey, margin_ratio...` |
+| 7 | *"Fatigue from repeatedly typing wallet passwords"* | **Secp256r1 Passkey Auth** — `register_passkey()` contract function stores WebAuthn P-256 credentials on-chain. Frontend `usePasskey` hook triggers OS-native FaceID / TouchID / Windows Hello for deal authorization instead of typed passwords | `feat(contract): add upgrade, restore_deal, passkey, margin_ratio...` |
+| 8 | *"Concurrent deal creations under load"* | **Parallel Event Indexer** — Backend now processes batches of Soroban events concurrently via `Promise.all`, replacing sequential `forEach` iteration | `feat(backend): add WebSocket, deal history API...` |
+
 ---
 
 ## Community Recognition

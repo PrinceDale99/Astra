@@ -1,6 +1,6 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Vec,
+    contract, contracterror, contractimpl, contracttype, token, Address, Bytes, BytesN, Env, Symbol, Vec,
 };
 
 #[contracterror]
@@ -29,6 +29,7 @@ pub enum DataKey {
     YldsSac,
     Deal(u64),
     DealCounter,
+    PasskeyCredential(Address),
 }
 
 /// Persistent state for a single Repo Deal.
@@ -157,12 +158,17 @@ impl AstraRepo {
             is_liquidated: false,
         };
 
-        // Temporary storage — deals expire after ~24h (17280 ledgers ≈ 1 day at 5s/ledger)
+        // Persistent storage — deals expire after ~30 days
         let deal_key = DataKey::Deal(deal_counter);
-        env.storage().temporary().set(&deal_key, &deal_state);
+        env.storage().persistent().set(&deal_key, &deal_state);
         env.storage()
-            .temporary()
-            .extend_ttl(&deal_key, 17280, 17280);
+            .persistent()
+            .extend_ttl(&deal_key, 518400, 518400); // 30 days
+
+        env.events().publish(
+            (Symbol::new(&env, "deal_created"), deal_counter),
+            (borrower.clone(), xlm_deposit_amount, issued_ylds)
+        );
 
         Ok(deal_counter)
     }
@@ -183,7 +189,7 @@ impl AstraRepo {
         let deal_key = DataKey::Deal(deal_id);
         let mut deal_state: DealState = env
             .storage()
-            .temporary()
+            .persistent()
             .get(&deal_key)
             .ok_or(Error::DealNotFound)?;
 
@@ -221,7 +227,11 @@ impl AstraRepo {
         xlm_client.transfer(&contract_addr, &borrower, &xlm_to_return);
 
         deal_state.is_repaid = true;
-        env.storage().temporary().set(&deal_key, &deal_state);
+        env.events().publish(
+            (Symbol::new(&env, "repaid"), deal_id),
+            (borrower.clone(), deal_state.deposited_xlm, deal_state.issued_ylds)
+        );
+        env.storage().persistent().set(&deal_key, &deal_state);
 
         Ok(())
     }
@@ -234,7 +244,7 @@ impl AstraRepo {
         let deal_key = DataKey::Deal(deal_id);
         let mut deal_state: DealState = env
             .storage()
-            .temporary()
+            .persistent()
             .get(&deal_key)
             .ok_or(Error::DealNotFound)?;
 
@@ -251,10 +261,14 @@ impl AstraRepo {
         }
 
         deal_state.is_liquidated = true;
-        env.storage().temporary().set(&deal_key, &deal_state);
+        env.events().publish(
+            (Symbol::new(&env, "liquidated"), deal_id),
+            (deal_state.borrower.clone(), deal_state.deposited_xlm)
+        );
+        env.storage().persistent().set(&deal_key, &deal_state);
         env.storage()
-            .temporary()
-            .extend_ttl(&deal_key, 17280, 17280);
+            .persistent()
+            .extend_ttl(&deal_key, 518400, 518400);
 
         Ok(())
     }
@@ -262,9 +276,92 @@ impl AstraRepo {
     /// Read-only: return the current deal state (useful for frontends).
     pub fn get_deal(env: Env, deal_id: u64) -> Result<DealState, Error> {
         env.storage()
-            .temporary()
+            .persistent()
             .get(&DataKey::Deal(deal_id))
             .ok_or(Error::DealNotFound)
+    }
+
+    pub fn get_margin_ratio(env: Env, deal_id: u64) -> Result<i128, Error> {
+        let deal_key = DataKey::Deal(deal_id);
+        let deal_state: DealState = env
+            .storage()
+            .persistent()
+            .get(&deal_key)
+            .ok_or(Error::DealNotFound)?;
+        let ylds_sac: Address = env
+            .storage()
+            .persistent()
+            .get(&DataKey::YldsSac)
+            .ok_or(Error::NotInitialized)?;
+        let ylds_client = token::Client::new(&env, &ylds_sac);
+        let current_reserve = ylds_client.balance(&env.current_contract_address());
+        if deal_state.issued_ylds == 0 {
+            return Ok(200);
+        }
+        let ratio = (current_reserve * 100) / deal_state.issued_ylds;
+        Ok(ratio)
+    }
+
+    pub fn restore_deal(env: Env, deal_id: u64) -> Result<(), Error> {
+        let deal_key = DataKey::Deal(deal_id);
+        let _: DealState = env
+            .storage()
+            .persistent()
+            .get(&deal_key)
+            .ok_or(Error::DealNotFound)?;
+        env.storage().persistent().extend_ttl(&deal_key, 518400, 518400);
+        Ok(())
+    }
+
+    pub fn register_passkey(
+        env: Env,
+        account: Address,
+        credential_id: Bytes,
+        public_key: Bytes,
+    ) -> Result<(), Error> {
+        account.require_auth();
+        env.storage().persistent().set(
+            &DataKey::PasskeyCredential(account),
+            &(credential_id, public_key)
+        );
+        Ok(())
+    }
+
+    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) -> Result<(), Error> {
+        let admin: Address = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Admin)
+            .ok_or(Error::NotInitialized)?;
+        admin.require_auth();
+        env.deployer().update_current_contract_wasm(new_wasm_hash.clone());
+        env.events().publish(
+            (Symbol::new(&env, "upgraded"),),
+            (new_wasm_hash,)
+        );
+        Ok(())
+    }
+
+    pub fn migrate_v2(env: Env) -> Result<(), Error> {
+        let admin: Address = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Admin)
+            .ok_or(Error::NotInitialized)?;
+        admin.require_auth();
+        // Schema migration: re-extend TTL on all existing deals
+        let counter: u64 = env
+            .storage()
+            .persistent()
+            .get(&DataKey::DealCounter)
+            .unwrap_or(0);
+        for i in 1..=counter {
+            let deal_key = DataKey::Deal(i);
+            if env.storage().persistent().has(&deal_key) {
+                env.storage().persistent().extend_ttl(&deal_key, 518400, 518400);
+            }
+        }
+        Ok(())
     }
 }
 
