@@ -36,12 +36,10 @@ async function simulateDeals() {
         ];
 
         const args = [
-            nativeToScVal(kp.publicKey(), { type: 'address' }),
-            nativeToScVal(NATIVE_SAC, { type: 'address' }), // Using XLM as collateral for easy simulation
-            nativeToScVal(BigInt(collateralAmount), { type: 'i128' }),
-            nativeToScVal(BigInt(borrowAmount), { type: 'i128' }),
-            nativeToScVal(proofBytes, { type: 'bytes' }),
-            xdr.ScVal.scvVec(publicSignalsScVal),
+            nativeToScVal(kp.publicKey(), { type: 'address' }), // borrower
+            nativeToScVal(BigInt(collateralAmount), { type: 'i128' }), // xlm_deposit_amount
+            nativeToScVal(proofBytes, { type: 'bytes' }), // proof
+            xdr.ScVal.scvVec(publicSignalsScVal), // public_signals
         ];
 
         const callOperation = contract.call('create_repo_deal', ...args);
