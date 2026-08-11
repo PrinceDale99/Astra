@@ -1,3 +1,4 @@
+/** @feature RestoreDeal - prompts user to pay rent fee via Freighter to restore expired persistent deal entries, calls restore_deal() contract function */
 'use client';
 import React, { useState } from 'react';
 
