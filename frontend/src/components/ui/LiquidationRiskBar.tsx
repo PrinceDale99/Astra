@@ -1,3 +1,4 @@
+/** @feature LiquidationRiskBar - polls /api/v1/deals/:id/margin every 15s, color transitions green->amber->red based on margin ratio vs 150/120/100 thresholds */
 'use client';
 import React, { useState, useEffect } from 'react';
 
