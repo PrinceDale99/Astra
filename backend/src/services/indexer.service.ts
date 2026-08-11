@@ -30,7 +30,9 @@ export class IndexerService {
 
     try {
       const latest = await this.server.getLatestLedger();
-      this.lastLedger = latest.sequence;
+      // Go back ~13 hours (approx 10,000 ledgers at 5s/ledger) to catch recent testnet activity
+      this.lastLedger = Math.max(0, latest.sequence - 10000);
+      console.log(`Starting indexer from ledger ${this.lastLedger}`);
     } catch (e) {
       console.warn('Could not fetch latest ledger, defaulting to recent.', e);
       this.lastLedger = 0;
@@ -107,14 +109,20 @@ export class IndexerService {
 
       const processedDeal = {
         id: dealId,
-        rawEvent: event,
-        eventType,
+        type: eventType,
+        amount: parsedValue?.collateral_amount ? Number(parsedValue.collateral_amount) / 10000000 : 0,
+        time: new Date(event.timestamp).toISOString(),
+        status: 'Verified',
+        zkProof: parsedValue?.zkp_hash ? 'Verified On-Chain' : 'N/A',
+        health_factor: parsedValue?.min_health_factor ? Number(parsedValue.min_health_factor) / 100 : null,
         data: parsedValue,
         timestamp: event.ledgerClosedAt,
         ledger: event.ledger
       };
 
       this.dealsCache.set(dealId, processedDeal);
+      const { dbService } = require('./db.service');
+      dbService.recordDeal(processedDeal);
       return processedDeal;
     } catch (e) {
       console.error('Failed to parse event XDR:', e);
