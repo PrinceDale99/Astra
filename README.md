@@ -368,7 +368,11 @@ We actively collect feedback to prioritize our roadmap.
 
 ### Feedback Summary
 
-Based on survey data collected from **52 users**, the overall sentiment is highly positive, though there is room for improvement regarding consistency and technical performance.
+Based on the survey data collected, 52 users provided their feedback on the product. The overall sentiment is highly positive, though there is some room for improvement regarding consistency and technical performance. Users rated five key areas on a scale of 1 to 5. The product scored highest in Ease of Use with an average rating of 4.33, closely followed by meeting initial Expectations at 4.27. Overall Quality received a solid 4.15, while Performance & Speed scored 4.08. The lowest-rated category was Reliability, which averaged 3.96, indicating that users experienced some errors or inconsistencies during use.
+
+Out of the 52 respondents, 8 provided specific written feedback detailing areas for improvement. On the UI and UX front, users praised the 3D vault scene but noted that it causes lag on lower-end devices, prompting requests for a toggle to disable animations. Transparency in the deal dashboard was another concern, as users find it difficult to determine exactly when a deal will be liquidated based on current reserves. Additionally, there is a strong demand for a dedicated history tab to easily track old, paid-off, or liquidated Soroban transactions. Performance-wise, users noted that the dashboard does not always update instantly, suggesting a switch to WebSockets for real-time indexing, and requested that the backend be optimized to handle concurrent deal creations faster.
+
+Feedback regarding smart contracts and data management highlighted frustrations with migrating to new contract addresses after bug fixes, leading to heavy requests for in-place upgradable contracts. Users also reported that dormant testnet deals expire or disappear, requiring a new mechanism to recover or restore archived data. Finally, on the authentication side, users expressed fatigue from repeatedly typing wallet passwords and recommended integrating FaceID or phone passkeys to streamline the login and signing process.
 
 **Average Ratings (Scale 1-5):**
 - ⭐ **4.33** – Ease of Use
