@@ -1,3 +1,4 @@
+/** @feature PasskeyAuth - registerPasskey() triggers OS FaceID/TouchID/Windows Hello, stores credential ID in localStorage, signWithPasskey() returns DER-encoded P-256 signature */
 'use client';
 
 const BACKEND_URL =
