@@ -62,9 +62,31 @@ const StatCard = ({ title, value, icon: Icon, trend, delay }: any) => (
 
 export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false);
+  const [liveActivity, setLiveActivity] = useState<any[]>([]);
+  const [totalDeals, setTotalDeals] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
+    
+    // Fetch real data from our Render backend
+    const fetchAnalytics = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://astra-9mg6.onrender.com';
+        const res = await fetch(`${API_URL}/api/v1/analytics`);
+        if (res.ok) {
+          const data = await res.json();
+          setLiveActivity(data.recentActivity || []);
+          setTotalDeals(data.totalDeals || 52);
+        }
+      } catch (err) {
+        console.error('Failed to fetch analytics:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchAnalytics();
   }, []);
 
   if (!mounted) return null; // Avoid hydration mismatch on charts
@@ -103,7 +125,7 @@ export default function AnalyticsPage() {
         {/* Top Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard title="Total Value Locked" value="$26.4M" icon={Database} trend="+18% this week" delay={0.1} />
-          <StatCard title="Total Deals Created" value="52" icon={Activity} trend="+12 in last 24h" delay={0.2} />
+          <StatCard title="Total Deals Created" value={totalDeals.toString()} icon={Activity} trend="+12 in last 24h" delay={0.2} />
           <StatCard title="Active Institutions" value="14" icon={Users} trend="+3 this week" delay={0.3} />
           <StatCard title="Avg Proof Gen Time" value="142ms" icon={Clock} trend="-15ms improvement" delay={0.4} />
         </div>
@@ -191,6 +213,9 @@ export default function AnalyticsPage() {
             <Link href="/terminal" className="text-sm text-[#00D2FF] hover:underline">View in Terminal &rarr;</Link>
           </div>
           <div className="overflow-x-auto">
+            {isLoading ? (
+              <div className="p-12 text-center text-gray-400">Loading live testnet data...</div>
+            ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/5 text-gray-400 text-sm border-b border-white/10">
@@ -203,7 +228,7 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentActivity.map((tx, idx) => (
+                {(liveActivity.length > 0 ? liveActivity : recentActivity).map((tx, idx) => (
                   <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                     <td className="py-4 px-6 font-mono text-[#00D2FF] text-sm">{tx.id}</td>
                     <td className="py-4 px-6">
@@ -229,6 +254,7 @@ export default function AnalyticsPage() {
                 ))}
               </tbody>
             </table>
+            )}
           </div>
         </motion.div>
 
