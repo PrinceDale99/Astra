@@ -1,3 +1,4 @@
+/** @feature ParallelIndexer - processes Soroban event batches concurrently via Promise.all, broadcasts NEW_DEAL events to WebSocket clients, records repaid/liquidated events to deal_history */
 import { rpc } from '@stellar/stellar-sdk';
 import { LRUCache } from 'lru-cache';
 import { dbService } from './db.service';
