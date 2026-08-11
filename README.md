@@ -146,7 +146,17 @@ graph TD
 ### Layer 3  Backend Orchestration
 - **Render Free-Tier Optimized**  Memory-capped (512MB) Node.js/Express engine.
 - **SnarkJS Offloading**  Serverless compilation of `.wasm` and `.zkey` files to save client-side bandwidth.
-- **Soroban Indexer**  In-memory LRU cache polling Stellar Horizon for active deals.
+- **Soroban Indexer**  In-memory LRU cache and SQLite Database polling Stellar Horizon for active deals.
+
+---
+
+## Live Protocol Analytics
+
+Astra runs a live indexer that decodes Soroban XDR events directly from the Stellar Testnet into a persistent SQLite database. This powers a real-time, 100% on-chain analytics dashboard showing liquidity growth, active institutions, and health factor distributions.
+
+<div align="center">
+  <img src="public/analytics.png" alt="Astra Live Protocol Analytics Dashboard" width="100%" style="border-radius:16px; box-shadow: 0 4px 30px rgba(0, 255, 204, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 15px; margin-bottom: 20px;"/>
+</div>
 
 ---
 
