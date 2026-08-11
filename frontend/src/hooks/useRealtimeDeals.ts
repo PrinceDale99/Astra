@@ -16,7 +16,7 @@ export function useRealtimeDeals(initialDeals: RealtimeDeal[] = []) {
   const [deals, setDeals] = useState<RealtimeDeal[]>(initialDeals);
   const [isLive, setIsLive] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://astra-9mg6.onrender.com';
 
   useEffect(() => {
     function connect() {

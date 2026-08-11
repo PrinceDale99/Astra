@@ -13,7 +13,7 @@ export default function RestoreDealButton({ dealId, onRestored }: RestoreDealBut
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://astra-9mg6.onrender.com';
 
   const handleRestore = async () => {
     setLoading(true);

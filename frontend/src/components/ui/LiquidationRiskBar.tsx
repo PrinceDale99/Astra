@@ -29,7 +29,7 @@ export default function LiquidationRiskBar({ dealId, maturityTimestamp }: Liquid
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://astra-9mg6.onrender.com';
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
