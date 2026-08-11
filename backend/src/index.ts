@@ -83,6 +83,7 @@ app.get('/api/v1/oracle/rates', async (req, res) => {
 
 app.get('/api/v1/analytics', async (req, res) => {
   try {
+    const { dbService } = require('./services/db.service');
     // 1. Get all fully parsed XDR events from our IndexerService cache
     const parsedEvents = indexerService.getAllParsedEvents();
 
@@ -112,11 +113,17 @@ app.get('/api/v1/analytics', async (req, res) => {
       };
     });
 
+    // Get DB metrics
+    const historicalTvl = await dbService.getHistoricalTvl();
+    const activeInstitutionsCount = await dbService.getActiveInstitutionsCount();
+
     res.json({ 
       recentActivity, 
       totalDeals: parsedEvents.length,
       realTvl: (Number(tvlStroops) / 10000000),
-      parsedHealthFactors: healthFactors
+      parsedHealthFactors: healthFactors,
+      historicalTvl: historicalTvl,
+      activeInstitutions: activeInstitutionsCount
     });
   } catch (error: any) {
     console.error('Analytics endpoint error:', error);

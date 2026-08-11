@@ -1,10 +1,12 @@
 import { rpc } from '@stellar/stellar-sdk';
 import { LRUCache } from 'lru-cache';
+import { dbService } from './db.service';
 
 export class IndexerService {
   private server: rpc.Server;
   private dealsCache: LRUCache<string, any>;
   private connected: boolean = false;
+  private currentTvlStroops: bigint = BigInt(0);
 
   constructor() {
     // Free tier optimized memory limits
@@ -53,7 +55,22 @@ export class IndexerService {
         });
         
         if (response.events && response.events.length > 0) {
-          response.events.forEach(event => this.processEvent(event));
+          let updatedTvl = false;
+          response.events.forEach(event => {
+            const parsed = this.processEvent(event);
+            if (parsed && parsed.data?.collateral_amount) {
+              this.currentTvlStroops += BigInt(parsed.data.collateral_amount.toString());
+              updatedTvl = true;
+            }
+            if (parsed && parsed.data?.borrower) {
+              dbService.recordInstitution(parsed.data.borrower);
+            }
+          });
+          
+          if (updatedTvl) {
+            dbService.recordTvl(this.currentTvlStroops.toString());
+          }
+
           this.lastLedger = response.latestLedger;
         }
       } catch (err) {
@@ -98,8 +115,10 @@ export class IndexerService {
       };
 
       this.dealsCache.set(dealId, processedDeal);
+      return processedDeal;
     } catch (e) {
       console.error('Failed to parse event XDR:', e);
+      return null;
     }
   }
 

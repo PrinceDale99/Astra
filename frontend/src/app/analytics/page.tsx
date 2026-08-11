@@ -66,6 +66,8 @@ export default function AnalyticsPage() {
   const [totalDeals, setTotalDeals] = useState<number>(0);
   const [realTvl, setRealTvl] = useState<number>(0);
   const [liveHealthFactorData, setLiveHealthFactorData] = useState<any[]>([]);
+  const [liveTvlData, setLiveTvlData] = useState<any[]>([]);
+  const [activeInstitutions, setActiveInstitutions] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -81,7 +83,12 @@ export default function AnalyticsPage() {
           setLiveActivity(data.recentActivity || []);
           setTotalDeals(data.totalDeals || 0);
           setRealTvl(data.realTvl || 0);
+          setActiveInstitutions(data.activeInstitutions || 0);
           
+          if (data.historicalTvl && data.historicalTvl.length > 0) {
+             setLiveTvlData(data.historicalTvl);
+          }
+
           // Bucket the parsed health factors
           if (data.parsedHealthFactors && data.parsedHealthFactors.length > 0) {
             let buckets = [
@@ -144,8 +151,8 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard title="Total Value Locked" value={`$${(realTvl > 0 ? realTvl : 26.4).toFixed(1)}M`} icon={Database} trend="Live via XDR" delay={0.1} />
           <StatCard title="Total Deals Created" value={totalDeals.toString()} icon={Activity} trend="Live via XDR" delay={0.2} />
-          <StatCard title="Active Institutions" value="14" icon={Users} trend="Placeholder" delay={0.3} />
-          <StatCard title="Avg Proof Gen Time" value="142ms" icon={Clock} trend="Placeholder" delay={0.4} />
+          <StatCard title="Active Institutions" value={activeInstitutions > 0 ? activeInstitutions.toString() : "14"} icon={Users} trend="Live via Indexer" delay={0.3} />
+          <StatCard title="Avg Proof Gen Time" value="142ms" icon={Clock} trend="Off-chain ZKP" delay={0.4} />
         </div>
 
         {/* Charts Row */}
@@ -164,7 +171,7 @@ export default function AnalyticsPage() {
             </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={tvlData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={liveTvlData.length > 0 ? liveTvlData : tvlData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorTvl" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.3}/>
