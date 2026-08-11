@@ -260,11 +260,7 @@ An automated static analysis and manual security review is scheduled.
 | **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US) |
 <img src="public/testnet.png" alt="Testnet Deployment Screenshot" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
-<details>
-<summary><b>View 52 Live Testnet Interactions</b></summary>
-<br>
-
-Here are 52 unique transactions successfully executed on the Astra Testnet contract:
+### Testnet Interactions
 
 | Testnet Address | TxId | Stellar Expert Link |
 |---|---|---|
@@ -321,7 +317,7 @@ Here are 52 unique transactions successfully executed on the Astra Testnet contr
 | GCZS3VGSGFFX6WZO3EV27EMNI7T6AOFFW4F2PC2MOBSGFLPOM4Y7FS3H | d309811c736f0c2421fb6a678f50ab805d5b794c09c4aadbed8b12ecb7764164 | [Link](https://stellar.expert/explorer/testnet/tx/d309811c736f0c2421fb6a678f50ab805d5b794c09c4aadbed8b12ecb7764164) |
 | GASPE6ZZRPXJFD43CNABKBUUNNFIVJH6SFDEIQ3FKSVOZ3ICKI66UZ3C | 34570d8da1230b5eeff7eb988417a3124bd8eb3a328b4a49c07da476b71fec33 | [Link](https://stellar.expert/explorer/testnet/tx/34570d8da1230b5eeff7eb988417a3124bd8eb3a328b4a49c07da476b71fec33) |
 
-</details>
+
 
 ---
 
