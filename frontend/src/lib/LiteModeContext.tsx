@@ -1,3 +1,4 @@
+/** @feature LiteMode - persists user preference in localStorage, auto-activates on OS prefers-reduced-motion, replaces Canvas with SVG placeholder */
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
