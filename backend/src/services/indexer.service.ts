@@ -63,16 +63,59 @@ export class IndexerService {
   }
 
   private processEvent(event: any) {
-    // Basic event decoding - in a full production system, we decode the XDR
-    // Here we just store the raw event for the UI to consume if it matches
-    const dealId = event.id; // Event ID can serve as a unique deal ID for now
-    this.dealsCache.set(dealId, event);
+    try {
+      const { xdr, scValToNative } = require('@stellar/stellar-sdk');
+      const dealId = event.id; // Event ID serves as a unique identifier
+
+      let parsedValue: any = null;
+      let eventType = 'Unknown';
+
+      // The topic array contains the event signature (topics)
+      if (event.topic && event.topic.length > 0) {
+        // Decode the first topic to determine the event type
+        try {
+          const topicScVal = xdr.ScVal.fromXDR(event.topic[0], 'base64');
+          const topicStr = scValToNative(topicScVal);
+          eventType = typeof topicStr === 'string' ? topicStr : 'Contract Event';
+        } catch (e) {
+          // ignore topic parse error
+        }
+      }
+
+      // Decode the actual event payload value
+      if (event.value && event.value.xdr) {
+        const scVal = xdr.ScVal.fromXDR(event.value.xdr, 'base64');
+        parsedValue = scValToNative(scVal);
+      }
+
+      const processedDeal = {
+        id: dealId,
+        rawEvent: event,
+        eventType,
+        data: parsedValue,
+        timestamp: event.ledgerClosedAt,
+        ledger: event.ledger
+      };
+
+      this.dealsCache.set(dealId, processedDeal);
+    } catch (e) {
+      console.error('Failed to parse event XDR:', e);
+    }
+  }
+
+  public getAllParsedEvents() {
+    const events = [];
+    for (const [dealId, deal] of this.dealsCache.entries()) {
+      events.push(deal);
+    }
+    return events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 
   public getActiveDealsForBorrower(borrowerAddress: string) {
     const activeDeals = [];
     for (const [dealId, deal] of this.dealsCache.entries()) {
-      if (deal.borrower === borrowerAddress) {
+      // Assuming parsedValue might contain borrower
+      if (deal.data && deal.data.borrower === borrowerAddress) {
         activeDeals.push(deal);
       }
     }

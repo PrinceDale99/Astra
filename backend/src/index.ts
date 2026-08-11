@@ -83,25 +83,41 @@ app.get('/api/v1/oracle/rates', async (req, res) => {
 
 app.get('/api/v1/analytics', async (req, res) => {
   try {
-    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
-    // Fetch real historical data from Stellar Expert
-    const response = await fetch(`https://api.stellar.expert/explorer/testnet/contract/${contractId}/operations?limit=52`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch from Stellar Expert');
-    }
-    const data = await response.json();
-    
-    // Process the data into the format the analytics frontend expects
-    const recentActivity = data._embedded.records.map((op: any) => ({
-      id: op.transaction_hash.substring(0, 12) + '...',
-      type: 'Create Deal', // Simplification since most ops on our testnet were create_deal
-      amount: Math.floor(Math.random() * 500000) + 10000, // We could parse XDR here, but keeping it simple
-      time: new Date(op.created_at).toLocaleString(),
-      status: op.successful ? 'Verified' : 'Failed',
-      zkProof: `${Math.floor(Math.random() * 50) + 100}ms` // Mocking ZKP verification time since it's offchain
-    }));
+    // 1. Get all fully parsed XDR events from our IndexerService cache
+    const parsedEvents = indexerService.getAllParsedEvents();
 
-    res.json({ recentActivity, totalDeals: data._embedded.records.length });
+    let tvlStroops = BigInt(0);
+    const healthFactors = [];
+
+    // 2. Map the XDR-parsed events to the frontend format
+    const recentActivity = parsedEvents.map((event: any) => {
+      // Safely check if it's a create deal event
+      if (event.eventType === 'CREATE_DEAL' || event.eventType === 'create_repo_deal' || event.data?.collateral_amount) {
+        if (event.data?.collateral_amount) {
+          tvlStroops += BigInt(event.data.collateral_amount.toString());
+        }
+        if (event.data?.min_health_factor) {
+          healthFactors.push(Number(event.data.min_health_factor) / 100);
+        }
+      }
+
+      return {
+        id: event.id.substring(0, 12) + '...',
+        type: event.eventType || 'Contract Event',
+        // If we parsed the amount, use it, else default 0
+        amount: event.data?.collateral_amount ? Number(event.data.collateral_amount) / 10000000 : 0, 
+        time: new Date(event.timestamp).toLocaleString(),
+        status: 'Verified', 
+        zkProof: event.data?.zkp_hash ? 'Verified On-Chain' : 'N/A'
+      };
+    });
+
+    res.json({ 
+      recentActivity, 
+      totalDeals: parsedEvents.length,
+      realTvl: (Number(tvlStroops) / 10000000),
+      parsedHealthFactors: healthFactors
+    });
   } catch (error: any) {
     console.error('Analytics endpoint error:', error);
     res.status(500).json({ error: error.message || 'Error fetching analytics' });
