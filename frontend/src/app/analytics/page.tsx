@@ -7,9 +7,10 @@ import {
   AreaChart, Area, BarChart, Bar, Cell
 } from 'recharts';
 import { 
-  ArrowLeft, Activity, ShieldCheck, Database, TrendingUp, Users, Clock
+  ArrowLeft, Activity, ShieldCheck, Database, TrendingUp, Users, Clock, History
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRealtimeDeals } from '../../hooks/useRealtimeDeals';
 
 
 const StatCard = ({ title, value, icon: Icon, trend, delay }: any) => (
@@ -42,6 +43,7 @@ export default function AnalyticsPage() {
   const [liveTvlData, setLiveTvlData] = useState<any[]>([]);
   const [activeInstitutions, setActiveInstitutions] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
+  const { deals: wsDeals, isLive } = useRealtimeDeals();
 
   useEffect(() => {
     setMounted(true);
@@ -111,12 +113,23 @@ export default function AnalyticsPage() {
             <p className="text-gray-400 mt-2 text-lg">Real-time monitoring of the Astra ZK Repo Testnet.</p>
           </div>
           
-          <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-2 px-4">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-            </span>
-            <span className="text-sm font-medium text-gray-300">Soroban Testnet Connected</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2 px-4">
+              <span className="flex h-3 w-3 relative">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-green-400' : 'bg-yellow-400'} opacity-75`}></span>
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${isLive ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+              </span>
+              <span className="text-sm font-medium text-gray-300">
+                {isLive ? '● LIVE' : 'Soroban Testnet'}
+              </span>
+            </div>
+            <Link
+              href="/history"
+              className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2 px-4 text-sm text-gray-300 hover:border-[#00D2FF]/50 hover:text-white transition-colors"
+            >
+              <History size={14} />
+              Deal History
+            </Link>
           </div>
         </div>
 

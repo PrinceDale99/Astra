@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Shield, Zap, Lock, BarChart3, Database } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Lock, BarChart3, Database, Cpu, Box } from 'lucide-react';
 import VaultScene from '../components/3d/VaultScene';
 import KineticHeading from '../components/ui/KineticHeading';
+import { useLiteMode } from '../lib/LiteModeContext';
 
 export default function LandingPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { isLiteMode, toggleLiteMode } = useLiteMode();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,10 +108,23 @@ export default function LandingPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
             Live Analytics
           </Link>
+          <Link href="/history" className="hover:text-[#00ffcc] transition-colors flex items-center gap-2">
+            History
+          </Link>
         </div>
-        <Link href="/terminal" className="border border-[#00ffcc] bg-[#00ffcc]/10 text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-6 py-2 hover:bg-[#00ffcc] hover:text-black transition-all duration-300">
-          Launch App
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleLiteMode}
+            title={isLiteMode ? 'Switch to 3D Mode' : 'Switch to Lite Mode'}
+            className="border border-zinc-700 text-zinc-400 font-mono text-xs uppercase tracking-widest px-4 py-2 hover:border-[#00ffcc] hover:text-[#00ffcc] transition-all duration-300 flex items-center gap-2"
+          >
+            {isLiteMode ? <Box size={13} /> : <Cpu size={13} />}
+            {isLiteMode ? '3D' : 'Lite'}
+          </button>
+          <Link href="/terminal" className="border border-[#00ffcc] bg-[#00ffcc]/10 text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-6 py-2 hover:bg-[#00ffcc] hover:text-black transition-all duration-300">
+            Launch App
+          </Link>
+        </div>
       </nav>
 
       <div className="relative z-20">

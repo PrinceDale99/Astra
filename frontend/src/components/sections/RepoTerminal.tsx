@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useWallet from '../../hooks/useWallet';
 import WalletSelectorModal from '../ui/WalletSelectorModal';
 import { generateRepoHealthProof } from '../../lib/zk/prover';
+import { registerPasskey, hasPasskey } from '../../hooks/usePasskey';
 import {
   submitCreateRepoDeal,
   submitRepayDeal,
@@ -14,6 +15,8 @@ import { CONTRACTS, YLDS_ASSET } from '../../config/contracts';
 import VaultScene from '../3d/VaultScene';
 import KineticHeading from '../ui/KineticHeading';
 import DealConfirmedModal from '../ui/DealConfirmedModal';
+import LiquidationRiskBar from '../ui/LiquidationRiskBar';
+import RestoreDealButton from '../ui/RestoreDealButton';
 import {
   Shield,
   Coins,
@@ -103,6 +106,8 @@ export default function RepoTerminal() {
   const [repayHash, setRepayHash] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [passkeyRegistered, setPasskeyRegistered] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
 
   const xlmDepositStroops = Math.floor(collateralAmount * STROOPS_PER_XLM);
   const computedHealthFactor = Math.round(
@@ -134,7 +139,8 @@ export default function RepoTerminal() {
   // ─── Auto-advance from Step 1 when wallet connects ──────────────────────
   useEffect(() => {
     if (connected && currentStep === 1) setCurrentStep(2);
-  }, [connected, currentStep]);
+    if (connected && publicKey) setPasskeyRegistered(hasPasskey(publicKey));
+  }, [connected, currentStep, publicKey]);
 
   // ─── Auto-check trustline when entering Step 2 ──────────────────────────
   const checkTrustline = useCallback(async () => {
@@ -336,6 +342,40 @@ export default function RepoTerminal() {
                 )}
               </div>
             </div>
+
+            {/* Passkey Registration - shown once wallet is connected */}
+            {connected && publicKey && (
+              <div className="mt-3 flex items-center justify-between p-4 border border-[#1A2035] bg-black/20 font-mono">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Biometric Auth</p>
+                  <p className="text-xs text-zinc-400">
+                    {passkeyRegistered
+                      ? '\u2713 Passkey registered \u2014 FaceID / TouchID active'
+                      : 'Register a passkey to sign future deals biometrically'}
+                  </p>
+                </div>
+                {!passkeyRegistered && (
+                  <button
+                    onClick={async () => {
+                      setPasskeyLoading(true);
+                      setErrorMessage(null);
+                      try {
+                        await registerPasskey(publicKey);
+                        setPasskeyRegistered(true);
+                      } catch (e: any) {
+                        setErrorMessage(e.message || 'Passkey registration failed.');
+                      } finally {
+                        setPasskeyLoading(false);
+                      }
+                    }}
+                    disabled={passkeyLoading}
+                    className="flex-shrink-0 border border-[#b582ff] text-[#b582ff] text-xs px-4 py-2 hover:bg-[#b582ff] hover:text-black transition-all duration-300 disabled:opacity-50 uppercase tracking-wider"
+                  >
+                    {passkeyLoading ? 'Registering...' : '\u2b21 Register Passkey'}
+                  </button>
+                )}
+              </div>
+            )}
           </StepCard>
 
           {/* ── STEP 2: Enable YLDS Trustline ─────────────────────────── */}
@@ -606,6 +646,24 @@ export default function RepoTerminal() {
                       View on Stellar Expert →
                     </a>
                   </div>
+
+                  {/* Liquidation Risk Bar — shown after deal is live */}
+                  {activeDealId !== null && (
+                    <div className="border border-[#1A2035] bg-black/30 p-4">
+                      <LiquidationRiskBar
+                        dealId={activeDealId}
+                        maturityTimestamp={Math.floor(new Date(bondMaturityDate).getTime() / 1000) + 86400}
+                      />
+                    </div>
+                  )}
+
+                  {/* Restore Deal — shown if deal was not found (archived) */}
+                  {activeDealId !== null && (
+                    <RestoreDealButton
+                      dealId={activeDealId}
+                      onRestored={() => setErrorMessage(null)}
+                    />
+                  )}
 
                   {/* Repayment Section */}
                   {!repayHash ? (
