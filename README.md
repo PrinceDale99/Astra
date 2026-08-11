@@ -354,7 +354,7 @@ The CI/CD pipeline runs Rust Soroban tests, builds the smart contract, compiles 
 
 We actively collect feedback to prioritize our roadmap.
 
- **[View Feedback & Data Export (Placeholder)](#)**
+ **[View Feedback & Data Export](https://docs.google.com/spreadsheets/d/1k0M0O7Sxmf3DgErEpXx5vBHukidAlnZxH7k2hO0c_Ns/edit?usp=sharing)**
 
 ### Improvements Built from Feedback
 <!-- 
