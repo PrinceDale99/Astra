@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astra Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <!-- Background Canvas -->
+    <div id="bg-canvas">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="slider-nav">
+      <div class="nav-dots" id="nav-dots">
+        <!-- Dots injected by JS -->
+      </div>
+    </nav>
+
+    <!-- Slides Container -->
+    <main id="slider-container">
+      
+      <!-- Slide 1: Title -->
+      <section class="slide active" id="slide-1">
+        <div class="slide-content center">
+          <div class="badge">ZK Repo Protocol</div>
+          <h1 class="glow-text">ASTRA</h1>
+          <h2>Tokenized Treasuries on Stellar Soroban</h2>
+          <p class="subtitle">Unlock institutional liquidity without compromising portfolio privacy.</p>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="nextSlide()">Explore Pitch Deck</button>
+            <a href="https://astra-seven-gules.vercel.app/" target="_blank" class="btn btn-outline">Enter App</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 2: Problem -->
+      <section class="slide" id="slide-2">
+        <div class="slide-content">
+          <div class="col-layout">
+            <div class="text-col">
+              <h2 class="section-title">The DeFi Privacy Paradox</h2>
+              <p>Institutional players face a massive barrier in decentralized finance.</p>
+              <ul class="styled-list">
+                <li><strong>Exposed Portfolios:</strong> Traditional DeFi requires public ledgers, leaving institutional strategies open to front-running.</li>
+                <li><strong>Fragmented Liquidity:</strong> Tokenized Real-World Assets (RWAs) are isolated. You can't easily borrow against them without liquidating.</li>
+              </ul>
+            </div>
+            <div class="visual-col">
+              <div class="glass-card danger-card">
+                <h3>Public Exposure</h3>
+                <p>Public smart contracts expose $4T+ in institutional repo trades.</p>
+                <div class="red-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Solution -->
+      <section class="slide" id="slide-3">
+        <div class="slide-content">
+          <div class="col-layout reverse">
+            <div class="text-col">
+              <h2 class="section-title">Zero-Knowledge Tri-Party Repos</h2>
+              <p>Astra allows institutions to lock tokenized assets as collateral and borrow liquidity <strong>without revealing the underlying assets</strong>.</p>
+              <div class="quote-box">
+                "Verifiable Solvency. Absolute Privacy."
+              </div>
+            </div>
+            <div class="visual-col">
+              <div class="glass-card success-card">
+                <h3>Absolute Privacy</h3>
+                <p>Zero-Knowledge cryptography secures your Treasury assets off-chain.</p>
+                <div class="green-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 4: How It Works -->
+      <section class="slide" id="slide-4">
+        <div class="slide-content">
+          <h2 class="section-title center-title">Under the Hood</h2>
+          <div class="steps-grid">
+            <div class="step-card glass-card">
+              <div class="step-num">1</div>
+              <h3>Lock</h3>
+              <p>Borrower deposits collateral (XLM/USDC/RWAs) into the smart contract.</p>
+            </div>
+            <div class="step-card glass-card">
+              <div class="step-num">2</div>
+              <h3>Prove</h3>
+              <p>Borrower generates a ZK-SNARK proof locally verifying health factor > 130%.</p>
+            </div>
+            <div class="step-card glass-card">
+              <div class="step-num">3</div>
+              <h3>Issue</h3>
+              <p>Soroban verifies the proof instantly and issues YLDS (Yield Token) 1:1.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 5: Stellar -->
+      <section class="slide" id="slide-5">
+        <div class="slide-content">
+          <div class="col-layout">
+            <div class="text-col">
+              <h2 class="section-title">Why Stellar Soroban?</h2>
+              <p>We built Astra on Stellar because it is the only network ready for global institutional finance.</p>
+              <ul class="styled-list">
+                <li><strong>Institutional Grade:</strong> Trusted by Franklin Templeton & WisdomTree.</li>
+                <li><strong>Parametric Scale:</strong> Rust-based contracts capable of extreme throughput.</li>
+                <li><strong>Built-in Compliance:</strong> Native asset clawbacks and authorization.</li>
+              </ul>
+            </div>
+            <div class="visual-col center-content">
+              <div class="stellar-orb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 6: Market -->
+      <section class="slide" id="slide-6">
+        <div class="slide-content">
+          <h2 class="section-title center-title">Trillions Wait Offline</h2>
+          <div class="market-stats">
+            <div class="stat-box glass-card">
+              <h4>TradFi Repo Market</h4>
+              <div class="stat-val">~$4 Trillion</div>
+              <p>Daily Volume</p>
+            </div>
+            <div class="stat-box glass-card">
+              <h4>Tokenized Treasuries</h4>
+              <div class="stat-val">$1B+</div>
+              <p>Total Value Locked</p>
+            </div>
+            <div class="stat-box glass-card glow-box">
+              <h4>Astra's TAM</h4>
+              <div class="stat-val">Bridging Both</div>
+              <p>The only privacy-first solution</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 7: Traction -->
+      <section class="slide" id="slide-7">
+        <div class="slide-content">
+          <div class="col-layout reverse">
+            <div class="text-col">
+              <h2 class="section-title">Proven on Testnet</h2>
+              <p>Our smart contracts are fully deployed and actively facilitating ZK repos.</p>
+              <ul class="styled-list">
+                <li><strong>Status:</strong> Testnet LIVE</li>
+                <li><strong>Interactions:</strong> 52+ successfully executed contract operations.</li>
+                <li><strong>Smart Contract:</strong> Fully deployed, tested, and verifiable.</li>
+              </ul>
+            </div>
+            <div class="visual-col">
+              <div class="terminal glass-card">
+                <div class="term-header">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="term-body">
+                  <p>> astra deploy --network testnet</p>
+                  <p class="success">Contract ID: CDNDVKIT56I7ZQQB7...</p>
+                  <p>> astra test --simulate 52</p>
+                  <p class="success">52/52 Interactions Passed.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 8: Security -->
+      <section class="slide" id="slide-8">
+        <div class="slide-content center">
+          <h2 class="section-title center-title">Institutional Security</h2>
+          <div class="security-grid">
+            <div class="sec-item">
+              <h3>ZK Circuits</h3>
+              <p>Powered by Circom & SnarkJS. Cryptographically unforgeable proofs.</p>
+            </div>
+            <div class="sec-item">
+              <h3>Soroban Contracts</h3>
+              <p>Rigorously unit-tested in Rust. No reentrancy, complete memory safety.</p>
+            </div>
+            <div class="sec-item">
+              <h3>Non-Custodial</h3>
+              <p>Astra never holds your keys. Liquidation is purely mathematical.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 9: Roadmap -->
+      <section class="slide" id="slide-9">
+        <div class="slide-content">
+          <h2 class="section-title center-title">The Journey to Mainnet</h2>
+          <div class="timeline">
+            <div class="time-node active">
+              <h4>Q3 2026</h4>
+              <p>Testnet Launch & ZK Integration</p>
+            </div>
+            <div class="time-line"></div>
+            <div class="time-node">
+              <h4>Q4 2026</h4>
+              <p>Mainnet Pilot & Liquidity LPs</p>
+            </div>
+            <div class="time-line"></div>
+            <div class="time-node">
+              <h4>Q1 2027</h4>
+              <p>Scale & Institutional Onboarding</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 10: CTA -->
+      <section class="slide" id="slide-10">
+        <div class="slide-content center">
+          <div class="badge success">Join The Future</div>
+          <h2 class="section-title center-title" style="margin-top: 1rem;">Ready to Unlock Your Treasury?</h2>
+          <p class="subtitle" style="margin-bottom: 2rem;">Join the Astra ecosystem today as a borrower, lender, or developer.</p>
+          <div class="btn-group center">
+            <a href="https://astra-seven-gules.vercel.app/" target="_blank" class="btn btn-primary">Launch App</a>
+            <a href="https://github.com/Astra" target="_blank" class="btn btn-outline">Read Documentation</a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Floating Footer Controls -->
+    <footer class="slider-controls">
+      <div class="built-by">Built by <span>Prince Dale Limosnero</span></div>
+      <div class="arrows">
+        <button id="prev-btn" class="icon-btn" onclick="prevSlide()" disabled>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button id="next-btn" class="icon-btn" onclick="nextSlide()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
