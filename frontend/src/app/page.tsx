@@ -102,6 +102,10 @@ export default function LandingPage() {
           <a href="#about" className="hover:text-[#00ffcc] transition-colors">Protocol</a>
           <a href="#features" className="hover:text-[#00ffcc] transition-colors">ZK-Security</a>
           <a href="#soroban" className="hover:text-[#00ffcc] transition-colors">Soroban native</a>
+          <Link href="/analytics" className="hover:text-[#00ffcc] text-white transition-colors flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+            Live Analytics
+          </Link>
         </div>
         <Link href="/terminal" className="border border-[#00ffcc] bg-[#00ffcc]/10 text-[#00ffcc] font-mono text-xs uppercase tracking-widest px-6 py-2 hover:bg-[#00ffcc] hover:text-black transition-all duration-300">
           Launch App
