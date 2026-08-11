@@ -7,6 +7,7 @@ export class IndexerService {
   private dealsCache: LRUCache<string, any>;
   private connected: boolean = false;
   private currentTvlStroops: bigint = BigInt(0);
+  private broadcastFn: ((event: any) => void) | null = null;
 
   constructor() {
     // Free tier optimized memory limits
@@ -20,6 +21,10 @@ export class IndexerService {
 
   public isConnected() {
     return this.connected;
+  }
+
+  public setBroadcast(fn: (event: any) => void) {
+    this.broadcastFn = fn;
   }
 
   private lastLedger: number = 0;
@@ -58,7 +63,8 @@ export class IndexerService {
         
         if (response.events && response.events.length > 0) {
           let updatedTvl = false;
-          response.events.forEach(event => {
+          const { dbService } = require('./db.service');
+          await Promise.all(response.events.map(async (event: any) => {
             const parsed = this.processEvent(event);
             if (parsed && parsed.data?.collateral_amount) {
               this.currentTvlStroops += BigInt(parsed.data.collateral_amount.toString());
@@ -67,7 +73,7 @@ export class IndexerService {
             if (parsed && parsed.data?.borrower) {
               dbService.recordInstitution(parsed.data.borrower);
             }
-          });
+          }));
           
           if (updatedTvl) {
             dbService.recordTvl(this.currentTvlStroops.toString());
@@ -120,7 +126,26 @@ export class IndexerService {
         ledger: event.ledger
       };
 
+      // Index closed deal events into deal_history table
+      if (eventType === 'repaid' || eventType === 'liquidated') {
+        const { dbService } = require('./db.service');
+        const closedDeal = {
+          id: dealId,
+          deal_id: parsedValue && parsedValue[1] ? Number(parsedValue[1]) : null,
+          borrower: parsedValue && parsedValue[0] ? String(parsedValue[0]) : 'unknown',
+          type: eventType,
+          deposited_xlm: parsedValue && parsedValue[1] ? Number(parsedValue[1]) / 1e7 : 0,
+          issued_ylds: eventType === 'repaid' && parsedValue && parsedValue[2] ? Number(parsedValue[2]) / 1e7 : null,
+          closed_at: new Date(event.timestamp || Date.now()).toISOString(),
+          ledger: event.ledger || 0
+        };
+        dbService.recordClosedDeal(closedDeal);
+      }
+
       this.dealsCache.set(dealId, processedDeal);
+      if (this.broadcastFn) {
+        this.broadcastFn({ type: 'NEW_DEAL', payload: processedDeal });
+      }
       const { dbService } = require('./db.service');
       dbService.recordDeal(processedDeal);
       return processedDeal;

@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
+import { useLiteMode } from '../../lib/LiteModeContext';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 interface VaultCoreProps {
   isVerified: boolean;
@@ -140,10 +143,10 @@ export default function VaultScene({ isVerified, scrollProgress }: VaultScenePro
     return () => window.removeEventListener('webglcontextlost', handleContextLoss);
   }, []);
 
-  if (hasError) {
+  if (hasError || isLiteMode || prefersReduced) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-black border border-red-900/50 p-6 rounded-lg text-red-400 font-mono">
-        WebGL context lost. Please reload the page.
+        {hasError ? 'WebGL context lost. Please reload the page.' : 'Vault visual disabled for performance.'}
       </div>
     );
   }

@@ -35,6 +35,19 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS deal_history (
+      id TEXT PRIMARY KEY,
+      deal_id INTEGER,
+      borrower TEXT NOT NULL,
+      type TEXT NOT NULL,
+      deposited_xlm REAL NOT NULL,
+      issued_ylds REAL,
+      closed_at TEXT NOT NULL,
+      ledger INTEGER NOT NULL
+    )
+  `);
+
   // Seed TVL for the last 7 days (growing realistically)
   const today = new Date();
   let baseTvl = 26400000; // 26.4M in USD equivalents
@@ -107,6 +120,28 @@ db.serialize(() => {
     );
   }
   console.log(`Seeded 8 recent deals.`);
+
+  // Seed closed deal history
+  const closedTypes = ['repaid', 'repaid', 'liquidated', 'repaid', 'liquidated'];
+  for (let i = 0; i < 5; i++) {
+    const closedId = `hist-${Math.random().toString(36).substr(2, 9)}`;
+    const closedAt = new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 3600000)).toISOString();
+    db.run(
+      `INSERT OR IGNORE INTO deal_history (id, deal_id, borrower, type, deposited_xlm, issued_ylds, closed_at, ledger)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        closedId,
+        i + 1,
+        `G${Math.random().toString(36).substr(2, 54).toUpperCase()}`,
+        closedTypes[i],
+        (Math.floor(Math.random() * 50000) + 5000) / 10000,
+        closedTypes[i] === 'repaid' ? (Math.floor(Math.random() * 50000) + 5000) / 10000 : null,
+        closedAt,
+        4000000 + i * 10000
+      ]
+    );
+  }
+  console.log('Seeded 5 closed deals in deal_history.');
 
   console.log('Seeding complete! You can now restart the backend to see data.');
 });

@@ -29,7 +29,6 @@ export default function RootLayout({
       </head>
       <body className={`${spaceGrotesk.variable} min-h-full flex flex-col bg-black text-white`}>
         <BackendWakeup />
-        <SmoothScroll>
           {children}
         </SmoothScroll>
       </body>

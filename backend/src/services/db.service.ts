@@ -46,6 +46,19 @@ export class DbService {
           health_factor REAL
         )
       `);
+
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS deal_history (
+          id TEXT PRIMARY KEY,
+          deal_id INTEGER,
+          borrower TEXT NOT NULL,
+          type TEXT NOT NULL,
+          deposited_xlm REAL NOT NULL,
+          issued_ylds REAL,
+          closed_at TEXT NOT NULL,
+          ledger INTEGER NOT NULL
+        )
+      `);
     });
   }
 
@@ -113,6 +126,53 @@ export class DbService {
         if (err) return reject(err);
         resolve(row.count);
       });
+    });
+  }
+
+  public recordClosedDeal(deal: {
+    id: string;
+    deal_id: number | null;
+    borrower: string;
+    type: string;
+    deposited_xlm: number;
+    issued_ylds: number | null;
+    closed_at: string;
+    ledger: number;
+  }) {
+    this.db.run(
+      `INSERT INTO deal_history (id, deal_id, borrower, type, deposited_xlm, issued_ylds, closed_at, ledger)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO NOTHING`,
+      [deal.id, deal.deal_id, deal.borrower, deal.type, deal.deposited_xlm, deal.issued_ylds, deal.closed_at, deal.ledger]
+    );
+  }
+
+  public getClosedDeals(
+    page: number,
+    limit: number,
+    borrower?: string
+  ): Promise<{ deals: any[]; total: number }> {
+    return new Promise((resolve, reject) => {
+      const offset = (page - 1) * limit;
+      const whereClause = borrower ? `WHERE borrower = ?` : ``;
+      const params = borrower ? [borrower, limit, offset] : [limit, offset];
+      const countParams = borrower ? [borrower] : [];
+
+      this.db.get(
+        `SELECT COUNT(*) as count FROM deal_history ${whereClause}`,
+        countParams,
+        (err, countRow: any) => {
+          if (err) return reject(err);
+          this.db.all(
+            `SELECT * FROM deal_history ${whereClause} ORDER BY closed_at DESC LIMIT ? OFFSET ?`,
+            params,
+            (err2, rows: any[]) => {
+              if (err2) return reject(err2);
+              resolve({ deals: rows, total: countRow.count });
+            }
+          );
+        }
+      );
     });
   }
 }

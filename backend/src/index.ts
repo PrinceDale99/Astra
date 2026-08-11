@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { z } from 'zod';
+import http from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
 import { ZkService } from './services/zk.service';
 import { IndexerService } from './services/indexer.service';
 import { OracleService } from './services/oracle.service';
@@ -198,8 +200,127 @@ app.post('/api/v1/faucet/ylds', async (req, res) => {
 });
 
 
-// Start Server
-app.listen(PORT, () => {
+// GET /api/v1/deals/history - paginated closed deal history
+app.get('/api/v1/deals/history', async (req, res) => {
+  try {
+    const { dbService } = require('./services/db.service');
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+    const borrower = typeof req.query.borrower === 'string' ? req.query.borrower : undefined;
+    const result = await dbService.getClosedDeals(page, limit, borrower);
+    res.json({ ...result, page, limit });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Error fetching deal history' });
+  }
+});
+
+// GET /api/v1/deals/:dealId/margin - live margin ratio for a deal
+app.get('/api/v1/deals/:dealId/margin', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const dealIdNum = Number(dealId);
+    if (isNaN(dealIdNum) || dealIdNum < 1) {
+      return res.status(400).json({ error: 'Invalid dealId' });
+    }
+    const { rpc: SorobanRpc, Contract, nativeToScVal, scValToNative, TransactionBuilder, Networks, Keypair, Account } = await import('@stellar/stellar-sdk');
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    const server = new SorobanRpc.Server('https://soroban-testnet.stellar.org');
+    const contract = new Contract(contractId);
+    // Use a throw-away keypair as the source for read-only simulation
+    const source = Keypair.random();
+    const latestLedger = await server.getLatestLedger();
+    const sourceAccount = new Account(source.publicKey(), '0');
+    const tx = new TransactionBuilder(sourceAccount, {
+      fee: '100',
+      networkPassphrase: Networks.TESTNET
+    })
+      .addOperation(contract.call('get_margin_ratio', nativeToScVal(BigInt(dealIdNum), { type: 'u64' })))
+      .setTimeout(30)
+      .build();
+    const sim = await server.simulateTransaction(tx);
+    if (SorobanRpc.Api.isSimulationError(sim)) {
+      return res.status(404).json({ error: 'Deal not found or contract error', detail: sim.error });
+    }
+    const retval = (sim as any).result?.retval;
+    const marginRatio = retval ? Number(scValToNative(retval)) : null;
+    res.json({ dealId: dealIdNum, marginRatio });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Margin ratio error' });
+  }
+});
+
+// POST /api/v1/deals/:dealId/restore - build a restore footprint transaction
+app.post('/api/v1/deals/:dealId/restore', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const dealIdNum = Number(dealId);
+    if (isNaN(dealIdNum) || dealIdNum < 1) {
+      return res.status(400).json({ error: 'Invalid dealId' });
+    }
+    // Return instructions for the frontend to build a RestoreFootprint + restore_deal tx
+    // The actual signing happens client-side via Freighter
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    res.json({
+      dealId: dealIdNum,
+      contractId,
+      network: 'testnet',
+      function: 'restore_deal',
+      args: [{ type: 'u64', value: dealIdNum }],
+      message: 'Sign and submit this RestoreFootprint transaction via Freighter to restore the archived deal.'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Restore error' });
+  }
+});
+
+// POST /api/v1/passkey/register - register Secp256r1 passkey credential on-chain
+app.post('/api/v1/passkey/register', async (req, res) => {
+  try {
+    const { walletAddress, credentialId, publicKey } = req.body;
+    if (!walletAddress || !credentialId || !publicKey) {
+      return res.status(400).json({ error: 'walletAddress, credentialId, and publicKey are required' });
+    }
+    // Return contract call info for frontend to sign and submit via Freighter
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    res.json({
+      contractId,
+      function: 'register_passkey',
+      args: [
+        { type: 'address', value: walletAddress },
+        { type: 'bytes', value: credentialId },
+        { type: 'bytes', value: publicKey }
+      ],
+      message: 'Sign and submit this transaction via Freighter to register your passkey on-chain.'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Passkey registration error' });
+  }
+});
+
+// Create HTTP server wrapping Express
+const httpServer = http.createServer(app);
+
+// WebSocket server for real-time deal broadcasting
+const wss = new WebSocketServer({ server: httpServer });
+
+wss.on('connection', (ws) => {
+  console.log('WebSocket client connected');
+  ws.on('close', () => console.log('WebSocket client disconnected'));
+});
+
+function broadcastToClients(data: any) {
+  const message = JSON.stringify(data);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
+// Wire the indexer to broadcast new events via WebSocket
+indexerService.setBroadcast(broadcastToClients);
+
+httpServer.listen(PORT, () => {
   console.log(`Astra Repo Backend running on port ${PORT}`);
   indexerService.startPolling();
 });
