@@ -25,7 +25,7 @@
 
 <br/>
 
-[ Live App](https://astra-seven-gules.vercel.app/)  [ Demo Video](https://www.youtube.com/watch?v=jXnLs0YNRks)  [ Pitch Deck](./pitchdeck/)  [ Community Win]([PLACEHOLDER_WIN_URL])
+[ Live App](https://astra-seven-gules.vercel.app/)  [ Demo Video](https://www.youtube.com/watch?v=jXnLs0YNRks)  [ Pitch Deck](https://astra-seven-gules.vercel.app/pitchdeck)  [ Community Win]([PLACEHOLDER_WIN_URL])
 
 </div>
 
@@ -336,7 +336,7 @@ The CI/CD pipeline runs Rust Soroban tests, builds the smart contract, compiles 
 |---|---|
 |  **Live App** | [https://astra-seven-gules.vercel.app/](https://astra-seven-gules.vercel.app/) |
 |  **Demo Video** | [https://www.youtube.com/watch?v=jXnLs0YNRks](https://www.youtube.com/watch?v=jXnLs0YNRks) |
-|  **Pitch Deck** | [./pitchdeck/](./pitchdeck/) |
+|  **Pitch Deck** | [https://astra-seven-gules.vercel.app/pitchdeck](https://astra-seven-gules.vercel.app/pitchdeck) |
 
 ---
 
