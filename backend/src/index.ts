@@ -87,7 +87,7 @@ app.get('/api/v1/analytics', async (req, res) => {
     const parsedEvents = indexerService.getAllParsedEvents();
 
     let tvlStroops = BigInt(0);
-    const healthFactors = [];
+    const healthFactors: number[] = [];
 
     // 2. Map the XDR-parsed events to the frontend format
     const recentActivity = parsedEvents.map((event: any) => {
