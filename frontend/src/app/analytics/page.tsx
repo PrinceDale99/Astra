@@ -11,33 +11,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Mock Data representing the 52+ live testnet interactions
-const tvlData = [
-  { day: 'Day 1', tvl: 0 },
-  { day: 'Day 2', tvl: 450000 },
-  { day: 'Day 3', tvl: 1200000 },
-  { day: 'Day 4', tvl: 3400000 },
-  { day: 'Day 5', tvl: 7800000 },
-  { day: 'Day 6', tvl: 14500000 },
-  { day: 'Day 7', tvl: 26000000 },
-];
-
-const healthFactorData = [
-  { range: '130%-140%', count: 12 },
-  { range: '141%-150%', count: 18 },
-  { range: '151%-160%', count: 10 },
-  { range: '161%-180%', count: 8 },
-  { range: '180%+', count: 4 },
-];
-
-const recentActivity = Array.from({ length: 8 }).map((_, i) => ({
-  id: `tx-${Math.random().toString(36).substr(2, 9)}`,
-  type: i % 3 === 0 ? 'Repay' : 'Create Deal',
-  amount: Math.floor(Math.random() * 500000) + 10000,
-  time: `${Math.floor(Math.random() * 60)} mins ago`,
-  status: 'Verified',
-  zkProof: `${Math.floor(Math.random() * 200) + 50}ms`
-}));
 
 const StatCard = ({ title, value, icon: Icon, trend, delay }: any) => (
   <motion.div 
@@ -149,9 +122,9 @@ export default function AnalyticsPage() {
 
         {/* Top Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <StatCard title="Total Value Locked" value={`$${(realTvl > 0 ? realTvl : 26.4).toFixed(1)}M`} icon={Database} trend="Live via XDR" delay={0.1} />
+          <StatCard title="Total Value Locked" value={`$${realTvl.toFixed(1)}M`} icon={Database} trend="Live via XDR" delay={0.1} />
           <StatCard title="Total Deals Created" value={totalDeals.toString()} icon={Activity} trend="Live via XDR" delay={0.2} />
-          <StatCard title="Active Institutions" value={activeInstitutions > 0 ? activeInstitutions.toString() : "14"} icon={Users} trend="Live via Indexer" delay={0.3} />
+          <StatCard title="Active Institutions" value={activeInstitutions.toString()} icon={Users} trend="Live via Indexer" delay={0.3} />
         </div>
 
         {/* Charts Row */}
@@ -168,31 +141,35 @@ export default function AnalyticsPage() {
               <h2 className="text-xl font-bold font-space-grotesk">Liquidity Growth (TVL)</h2>
               <div className="text-sm text-gray-400">Past 7 Days</div>
             </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={liveTvlData.length > 0 ? liveTvlData : tvlData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorTvl" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#00D2FF" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="day" stroke="#4B5563" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis 
-                    stroke="#4B5563" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                  />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                    itemStyle={{ color: '#00D2FF' }}
-                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'TVL']}
-                  />
-                  <Area type="monotone" dataKey="tvl" stroke="#00D2FF" strokeWidth={3} fillOpacity={1} fill="url(#colorTvl)" />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div className="h-[300px] w-full flex items-center justify-center">
+              {liveTvlData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={liveTvlData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorTvl" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#00D2FF" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="day" stroke="#4B5563" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis 
+                      stroke="#4B5563" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      tickFormatter={(value) => `$${value.toFixed(1)}M`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                      itemStyle={{ color: '#00D2FF' }}
+                      formatter={(value: any) => [`$${Number(value).toLocaleString()}M`, 'TVL']}
+                    />
+                    <Area type="monotone" dataKey="tvl" stroke="#00D2FF" strokeWidth={3} fillOpacity={1} fill="url(#colorTvl)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-gray-500 italic">No historical data recorded yet.</div>
+              )}
             </div>
           </motion.div>
 
@@ -204,22 +181,26 @@ export default function AnalyticsPage() {
             className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6"
           >
             <h2 className="text-xl font-bold font-space-grotesk mb-6">Health Factor Distribution</h2>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={liveHealthFactorData.length > 0 ? liveHealthFactorData : healthFactorData} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="range" type="category" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} width={80} />
-                  <Tooltip 
-                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                    {(liveHealthFactorData.length > 0 ? liveHealthFactorData : healthFactorData).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? '#ef4444' : index === 1 ? '#eab308' : '#22c55e'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="h-[300px] w-full flex items-center justify-center">
+              {liveHealthFactorData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={liveHealthFactorData} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+                    <XAxis type="number" hide />
+                    <YAxis dataKey="range" type="category" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} width={80} />
+                    <Tooltip 
+                      cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                      contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                    />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                      {liveHealthFactorData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={index === 0 ? '#ef4444' : index === 1 ? '#eab308' : '#22c55e'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-gray-500 italic">No deals created yet.</div>
+              )}
             </div>
           </motion.div>
 
@@ -252,7 +233,12 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {(liveActivity.length > 0 ? liveActivity : recentActivity).map((tx, idx) => (
+                {liveActivity.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-gray-500 italic">No recent transactions indexed yet.</td>
+                  </tr>
+                )}
+                {liveActivity.map((tx, idx) => (
                   <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                     <td className="py-4 px-6 font-mono text-[#00D2FF] text-sm">{tx.id}</td>
                     <td className="py-4 px-6">
