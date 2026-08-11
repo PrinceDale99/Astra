@@ -1,3 +1,4 @@
+/** @feature DealHistoryPage - paginated view of repaid/liquidated deals from SQLite deal_history table, supports borrower address filter */
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 
