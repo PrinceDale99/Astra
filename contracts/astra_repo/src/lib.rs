@@ -1,3 +1,4 @@
+// @feature UpgradeableContract: upgrade() calls env.deployer().update_current_contract_wasm() - address CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US is permanent
 #![no_std]
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, BytesN, Env, Symbol, Vec,
