@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
                     itemStyle={{ color: '#00D2FF' }}
-                    formatter={(value: number) => [`$${(value).toLocaleString()}`, 'TVL']}
+                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'TVL']}
                   />
                   <Area type="monotone" dataKey="tvl" stroke="#00D2FF" strokeWidth={3} fillOpacity={1} fill="url(#colorTvl)" />
                 </AreaChart>
