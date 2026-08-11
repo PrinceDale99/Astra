@@ -33,6 +33,19 @@ export class DbService {
           last_active TEXT NOT NULL
         )
       `);
+
+      // Table for recent deals
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS recent_deals (
+          id TEXT PRIMARY KEY,
+          type TEXT NOT NULL,
+          amount REAL NOT NULL,
+          time TEXT NOT NULL,
+          status TEXT NOT NULL,
+          zkProof TEXT NOT NULL,
+          health_factor REAL
+        )
+      `);
     });
   }
 
@@ -73,6 +86,24 @@ export class DbService {
           resolve(formatted);
         }
       );
+    });
+  }
+
+  public recordDeal(deal: any) {
+    this.db.run(
+      `INSERT INTO recent_deals (id, type, amount, time, status, zkProof, health_factor) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO NOTHING`,
+      [deal.id, deal.type, deal.amount, deal.time, deal.status, deal.zkProof, deal.health_factor]
+    );
+  }
+
+  public getRecentDeals(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(`SELECT * FROM recent_deals ORDER BY time DESC LIMIT 50`, (err, rows: any[]) => {
+        if (err) return reject(err);
+        resolve(rows);
+      });
     });
   }
 

@@ -84,43 +84,31 @@ app.get('/api/v1/oracle/rates', async (req, res) => {
 app.get('/api/v1/analytics', async (req, res) => {
   try {
     const { dbService } = require('./services/db.service');
-    // 1. Get all fully parsed XDR events from our IndexerService cache
-    const parsedEvents = indexerService.getAllParsedEvents();
-
-    let tvlStroops = BigInt(0);
-    const healthFactors: number[] = [];
-
-    // 2. Map the XDR-parsed events to the frontend format
-    const recentActivity = parsedEvents.map((event: any) => {
-      // Safely check if it's a create deal event
-      if (event.eventType === 'CREATE_DEAL' || event.eventType === 'create_repo_deal' || event.data?.collateral_amount) {
-        if (event.data?.collateral_amount) {
-          tvlStroops += BigInt(event.data.collateral_amount.toString());
-        }
-        if (event.data?.min_health_factor) {
-          healthFactors.push(Number(event.data.min_health_factor) / 100);
-        }
-      }
-
-      return {
-        id: event.id.substring(0, 12) + '...',
-        type: event.eventType || 'Contract Event',
-        // If we parsed the amount, use it, else default 0
-        amount: event.data?.collateral_amount ? Number(event.data.collateral_amount) / 10000000 : 0, 
-        time: new Date(event.timestamp).toLocaleString(),
-        status: 'Verified', 
-        zkProof: event.data?.zkp_hash ? 'Verified On-Chain' : 'N/A'
-      };
-    });
-
+    
     // Get DB metrics
     const historicalTvl = await dbService.getHistoricalTvl();
     const activeInstitutionsCount = await dbService.getActiveInstitutionsCount();
+    const dbDeals = await dbService.getRecentDeals();
+
+    const recentActivity = dbDeals.map((deal: any) => ({
+      id: deal.id.substring(0, 12) + '...',
+      type: deal.type,
+      amount: deal.amount,
+      time: new Date(deal.time).toLocaleString(),
+      status: deal.status,
+      zkProof: deal.zkProof
+    }));
+
+    const healthFactors = dbDeals
+      .filter((d: any) => d.health_factor !== null)
+      .map((d: any) => d.health_factor);
+    
+    const realTvl = historicalTvl.length > 0 ? historicalTvl[historicalTvl.length - 1].tvl : 0;
 
     res.json({ 
       recentActivity, 
-      totalDeals: parsedEvents.length,
-      realTvl: (Number(tvlStroops) / 10000000),
+      totalDeals: dbDeals.length,
+      realTvl: realTvl,
       parsedHealthFactors: healthFactors,
       historicalTvl: historicalTvl,
       activeInstitutions: activeInstitutionsCount
