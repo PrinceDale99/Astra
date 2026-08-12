@@ -120,6 +120,15 @@ export class DbService {
     });
   }
 
+  public getTotalDealsCount(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.db.get(`SELECT COUNT(*) as count FROM recent_deals`, (err, row: any) => {
+        if (err) return reject(err);
+        resolve(row?.count ?? 0);
+      });
+    });
+  }
+
   public getActiveInstitutionsCount(): Promise<number> {
     return new Promise((resolve, reject) => {
       this.db.get(`SELECT COUNT(*) as count FROM active_institutions`, (err, row: any) => {
@@ -150,13 +159,27 @@ export class DbService {
   public getClosedDeals(
     page: number,
     limit: number,
-    borrower?: string
+    borrower?: string,
+    type?: string  // 'created' | 'repaid' | 'liquidated' | undefined (all)
   ): Promise<{ deals: any[]; total: number }> {
     return new Promise((resolve, reject) => {
       const offset = (page - 1) * limit;
-      const whereClause = borrower ? `WHERE borrower = ?` : ``;
-      const params = borrower ? [borrower, limit, offset] : [limit, offset];
-      const countParams = borrower ? [borrower] : [];
+
+      const conditions: string[] = [];
+      const baseParams: any[] = [];
+
+      if (borrower) {
+        conditions.push('borrower = ?');
+        baseParams.push(borrower);
+      }
+      if (type && type !== 'all') {
+        conditions.push('type = ?');
+        baseParams.push(type);
+      }
+
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      const countParams = [...baseParams];
+      const queryParams = [...baseParams, limit, offset];
 
       this.db.get(
         `SELECT COUNT(*) as count FROM deal_history ${whereClause}`,
@@ -165,10 +188,10 @@ export class DbService {
           if (err) return reject(err);
           this.db.all(
             `SELECT * FROM deal_history ${whereClause} ORDER BY closed_at DESC LIMIT ? OFFSET ?`,
-            params,
+            queryParams,
             (err2, rows: any[]) => {
               if (err2) return reject(err2);
-              resolve({ deals: rows, total: countRow.count });
+              resolve({ deals: rows, total: countRow?.count ?? 0 });
             }
           );
         }

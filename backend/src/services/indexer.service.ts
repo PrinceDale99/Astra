@@ -11,12 +11,10 @@ export class IndexerService {
   private broadcastFn: ((event: any) => void) | null = null;
 
   constructor() {
-    // Free tier optimized memory limits
     this.dealsCache = new LRUCache({
-      max: 500, // max 500 active deals in memory
-      ttl: 1000 * 60 * 60 * 24 * 7, // 7 days TTL (simulated persistence)
+      max: 500,
+      ttl: 1000 * 60 * 60 * 24 * 7,
     });
-    // Public Soroban testnet RPC
     this.server = new rpc.Server('https://soroban-testnet.stellar.org');
   }
 
@@ -43,7 +41,7 @@ export class IndexerService {
       console.warn('Could not fetch latest ledger, defaulting to recent.', e);
       this.lastLedger = 0;
     }
-    
+
     setInterval(async () => {
       try {
         if (this.lastLedger === 0) {
@@ -55,32 +53,41 @@ export class IndexerService {
         const response = await this.server.getEvents({
           startLedger: this.lastLedger,
           filters: [
-            { 
-              type: "contract", 
-              contractIds: ["CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US"] 
-            }
-          ]
+            {
+              type: 'contract',
+              contractIds: ['CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US'],
+            },
+          ],
         });
-        
+
+        // ✅ FIX 1: ALWAYS advance lastLedger — regardless of whether events exist.
+        // This prevents the indexer from re-scanning the same ledger range forever.
+        if (response.latestLedger && response.latestLedger > this.lastLedger) {
+          this.lastLedger = response.latestLedger;
+        }
+
         if (response.events && response.events.length > 0) {
+          console.log(`[Indexer] Processing ${response.events.length} new events from ledger ${this.lastLedger}`);
           let updatedTvl = false;
-          const { dbService } = require('./db.service');
+
           await Promise.all(response.events.map(async (event: any) => {
             const parsed = this.processEvent(event);
-            if (parsed && parsed.data?.collateral_amount) {
-              this.currentTvlStroops += BigInt(parsed.data.collateral_amount.toString());
-              updatedTvl = true;
-            }
-            if (parsed && parsed.data?.borrower) {
-              dbService.recordInstitution(parsed.data.borrower);
+            if (parsed) {
+              // ✅ FIX 2: Accumulate TVL from deal_created events using the correct tuple index
+              if (parsed.xlm_deposit > 0) {
+                this.currentTvlStroops += BigInt(Math.round(parsed.xlm_deposit * 1e7));
+                updatedTvl = true;
+              }
+              // Record institution for any event that has a borrower
+              if (parsed.borrower) {
+                dbService.recordInstitution(parsed.borrower);
+              }
             }
           }));
-          
+
           if (updatedTvl) {
             dbService.recordTvl(this.currentTvlStroops.toString());
           }
-
-          this.lastLedger = response.latestLedger;
         }
       } catch (err) {
         console.error('Error polling events:', err);
@@ -91,64 +98,119 @@ export class IndexerService {
   private processEvent(event: any) {
     try {
       const { xdr, scValToNative } = require('@stellar/stellar-sdk');
-      const dealId = event.id; // Event ID serves as a unique identifier
+      const dealId = event.id;
 
-      let parsedValue: any = null;
+      let parsedTopic: any[] = [];
       let eventType = 'Unknown';
+      let dealIdOnChain: number | null = null;
 
-      // The topic array contains the event signature (topics)
+      // ✅ FIX 3: Correctly parse topic array — [eventName, dealId]
       if (event.topic && event.topic.length > 0) {
-        // Decode the first topic to determine the event type
-        try {
-          const topicScVal = xdr.ScVal.fromXDR(event.topic[0], 'base64');
-          const topicStr = scValToNative(topicScVal);
-          eventType = typeof topicStr === 'string' ? topicStr : 'Contract Event';
-        } catch (e) {
-          // ignore topic parse error
+        parsedTopic = event.topic.map((t: string) => {
+          try {
+            return scValToNative(xdr.ScVal.fromXDR(t, 'base64'));
+          } catch {
+            return null;
+          }
+        });
+        if (typeof parsedTopic[0] === 'string') eventType = parsedTopic[0];
+        if (parsedTopic[1] !== undefined && parsedTopic[1] !== null) {
+          dealIdOnChain = Number(parsedTopic[1]);
         }
       }
 
-      // Decode the actual event payload value
+      // ✅ FIX 4: Parse value — our contract emits tuples, not objects
+      let parsedValue: any = null;
       if (event.value && event.value.xdr) {
-        const scVal = xdr.ScVal.fromXDR(event.value.xdr, 'base64');
-        parsedValue = scValToNative(scVal);
+        try {
+          parsedValue = scValToNative(xdr.ScVal.fromXDR(event.value.xdr, 'base64'));
+        } catch { /* ignore */ }
       }
+
+      // ✅ FIX 5: Use ledgerClosedAt (correct SDK field) not timestamp
+      const closedAt = event.ledgerClosedAt || event.timestamp || new Date().toISOString();
+
+      // Map event types to human-readable labels
+      const typeLabels: Record<string, string> = {
+        deal_created: 'Repo Deal',
+        repaid: 'Repay',
+        liquidated: 'Liquidation',
+      };
+
+      // Extract fields from tuple value based on event type:
+      // deal_created value: (borrower, xlm_amount, ylds_amount)
+      // repaid value:       (borrower, xlm_amount, ylds_amount)
+      // liquidated value:   (borrower, xlm_amount)
+      let borrower = 'unknown';
+      let xlmDeposit = 0;
+      let issuedYlds: number | null = null;
+      let zkProofStr = 'N/A';
+
+      if (Array.isArray(parsedValue) && parsedValue.length >= 2) {
+        borrower = String(parsedValue[0] ?? 'unknown');
+        xlmDeposit = parsedValue[1] !== undefined ? Number(parsedValue[1]) / 1e7 : 0;
+        issuedYlds = parsedValue[2] !== undefined ? Number(parsedValue[2]) / 1e7 : null;
+      } else if (parsedValue && typeof parsedValue === 'object') {
+        // Fallback: object-style value
+        borrower = parsedValue.borrower || 'unknown';
+        xlmDeposit = parsedValue.collateral_amount ? Number(parsedValue.collateral_amount) / 1e7 : 0;
+        issuedYlds = parsedValue.issued_ylds ? Number(parsedValue.issued_ylds) / 1e7 : null;
+        zkProofStr = parsedValue.zkp_hash ? 'Verified On-Chain' : 'N/A';
+      }
+
+      const displayType = typeLabels[eventType] || eventType;
 
       const processedDeal = {
         id: dealId,
-        type: eventType,
-        amount: parsedValue?.collateral_amount ? Number(parsedValue.collateral_amount) / 10000000 : 0,
-        time: new Date(event.timestamp).toISOString(),
+        type: displayType,
+        rawType: eventType,
+        amount: xlmDeposit,
+        xlm_deposit: xlmDeposit,
+        issued_ylds: issuedYlds,
+        borrower,
+        deal_id: dealIdOnChain,
+        time: closedAt,
         status: 'Verified',
-        zkProof: parsedValue?.zkp_hash ? 'Verified On-Chain' : 'N/A',
-        health_factor: parsedValue?.min_health_factor ? Number(parsedValue.min_health_factor) / 100 : null,
-        data: parsedValue,
-        timestamp: event.ledgerClosedAt,
-        ledger: event.ledger
+        zkProof: zkProofStr,
+        health_factor: null,
+        timestamp: closedAt,
+        ledger: event.ledger || 0,
       };
 
-      // Index closed deal events into deal_history table
-      if (eventType === 'repaid' || eventType === 'liquidated') {
-        const { dbService } = require('./db.service');
-        const closedDeal = {
+      // ✅ FIX 6: Record deal_created AND closed events to deal_history for the history page
+      if (eventType === 'deal_created') {
+        dbService.recordClosedDeal({
           id: dealId,
-          deal_id: parsedValue && parsedValue[1] ? Number(parsedValue[1]) : null,
-          borrower: parsedValue && parsedValue[0] ? String(parsedValue[0]) : 'unknown',
+          deal_id: dealIdOnChain,
+          borrower,
+          type: 'created',
+          deposited_xlm: xlmDeposit,
+          issued_ylds: issuedYlds,
+          closed_at: closedAt,
+          ledger: event.ledger || 0,
+        });
+      } else if (eventType === 'repaid' || eventType === 'liquidated') {
+        dbService.recordClosedDeal({
+          id: dealId,
+          deal_id: dealIdOnChain,
+          borrower,
           type: eventType,
-          deposited_xlm: parsedValue && parsedValue[1] ? Number(parsedValue[1]) / 1e7 : 0,
-          issued_ylds: eventType === 'repaid' && parsedValue && parsedValue[2] ? Number(parsedValue[2]) / 1e7 : null,
-          closed_at: new Date(event.timestamp || Date.now()).toISOString(),
-          ledger: event.ledger || 0
-        };
-        dbService.recordClosedDeal(closedDeal);
+          deposited_xlm: xlmDeposit,
+          issued_ylds: issuedYlds,
+          closed_at: closedAt,
+          ledger: event.ledger || 0,
+        });
       }
 
       this.dealsCache.set(dealId, processedDeal);
+
       if (this.broadcastFn) {
         this.broadcastFn({ type: 'NEW_DEAL', payload: processedDeal });
       }
-      const { dbService } = require('./db.service');
+
       dbService.recordDeal(processedDeal);
+
+      console.log(`[Indexer] Event: ${eventType} | Deal #${dealIdOnChain} | Borrower: ${borrower.substring(0, 8)}... | ${xlmDeposit.toFixed(2)} XLM`);
       return processedDeal;
     } catch (e) {
       console.error('Failed to parse event XDR:', e);
@@ -158,7 +220,7 @@ export class IndexerService {
 
   public getAllParsedEvents() {
     const events = [];
-    for (const [dealId, deal] of this.dealsCache.entries()) {
+    for (const [, deal] of this.dealsCache.entries()) {
       events.push(deal);
     }
     return events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -166,9 +228,8 @@ export class IndexerService {
 
   public getActiveDealsForBorrower(borrowerAddress: string) {
     const activeDeals = [];
-    for (const [dealId, deal] of this.dealsCache.entries()) {
-      // Assuming parsedValue might contain borrower
-      if (deal.data && deal.data.borrower === borrowerAddress) {
+    for (const [, deal] of this.dealsCache.entries()) {
+      if (deal.borrower === borrowerAddress) {
         activeDeals.push(deal);
       }
     }

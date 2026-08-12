@@ -155,10 +155,21 @@ graph TD
 Astra runs a live indexer that decodes Soroban XDR events directly from the Stellar Testnet into a persistent SQLite database. This powers a real-time, 100% on-chain analytics dashboard showing liquidity growth, active institutions, and health factor distributions.
 
 <div align="center">
-  <img src="public/analytics.png" alt="Astra Live Protocol Analytics Dashboard" width="100%" style="border-radius:16px; box-shadow: 0 4px 30px rgba(0, 255, 204, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 15px; margin-bottom: 20px;"/>
+  <img src="public/analytics.png" alt="Astra Live Protocol Analytics Dashboard" width="100%" style="border-radius:12px; box-shadow: 0 4px 30px rgba(0, 255, 204, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 15px; margin-bottom: 8px;"/>
+  <p align="center"><sub>↑ Real-time analytics dashboard — TVL growth, health factor distribution, and active institution count.</sub></p>
+</div>
+
+<br/>
+
+Every transaction broadcast to the Stellar Testnet is indexed within 10 seconds. The table below shows live `create_repo_deal` invocations decoded directly from Soroban XDR, identifying borrower addresses, collateral amounts, and sequence numbers.
+
+<div align="center">
+  <img src="public/transaction.png" alt="Astra Live Transaction Activity — Soroban contract invocations on Stellar Testnet" width="100%" style="border-radius:12px; box-shadow: 0 4px 30px rgba(0, 210, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px; margin-bottom: 8px;"/>
+  <p align="center"><sub>↑ Live transaction feed — <code>create_repo_deal</code> invocations on <a href="https://stellar.expert/explorer/testnet/account/GASPE6ZZRPXJFD43CNABKBUUNNFIVJH6SFDEIQ3FKSVOZ3ICKI66UZ3C">Stellar Expert Testnet</a>. Each row is a borrower creating a collateralized repo position against contract <code>CDNDVK…UX5US</code>.</sub></p>
 </div>
 
 ---
+
 
 ## Zero-Knowledge Proof Integration
 

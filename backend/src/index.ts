@@ -86,11 +86,12 @@ app.get('/api/v1/oracle/rates', async (req, res) => {
 app.get('/api/v1/analytics', async (req, res) => {
   try {
     const { dbService } = require('./services/db.service');
-    
+
     // Get DB metrics
     const historicalTvl = await dbService.getHistoricalTvl();
     const activeInstitutionsCount = await dbService.getActiveInstitutionsCount();
-    const dbDeals = await dbService.getRecentDeals();
+    const dbDeals = await dbService.getRecentDeals();          // last 50 for activity table
+    const totalDealsCount = await dbService.getTotalDealsCount(); // ✅ real COUNT(*)
 
     const recentActivity = dbDeals.map((deal: any) => ({
       id: deal.id.substring(0, 12) + '...',
@@ -104,15 +105,15 @@ app.get('/api/v1/analytics', async (req, res) => {
     const healthFactors = dbDeals
       .filter((d: any) => d.health_factor !== null)
       .map((d: any) => d.health_factor);
-    
+
     const realTvl = historicalTvl.length > 0 ? historicalTvl[historicalTvl.length - 1].tvl : 0;
 
-    res.json({ 
-      recentActivity, 
-      totalDeals: dbDeals.length,
-      realTvl: realTvl,
+    res.json({
+      recentActivity,
+      totalDeals: totalDealsCount,
+      realTvl,
       parsedHealthFactors: healthFactors,
-      historicalTvl: historicalTvl,
+      historicalTvl,
       activeInstitutions: activeInstitutionsCount
     });
   } catch (error: any) {
@@ -207,7 +208,8 @@ app.get('/api/v1/deals/history', async (req, res) => {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
     const borrower = typeof req.query.borrower === 'string' ? req.query.borrower : undefined;
-    const result = await dbService.getClosedDeals(page, limit, borrower);
+    const type = typeof req.query.type === 'string' ? req.query.type : undefined;
+    const result = await dbService.getClosedDeals(page, limit, borrower, type);
     res.json({ ...result, page, limit });
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Error fetching deal history' });
