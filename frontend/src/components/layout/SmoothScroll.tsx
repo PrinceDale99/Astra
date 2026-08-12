@@ -31,10 +31,18 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
     gsap.ticker.lagSmoothing(0);
 
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
     return () => {
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000);
       });
+      resizeObserver.disconnect();
       lenis.destroy();
     };
   }, []);

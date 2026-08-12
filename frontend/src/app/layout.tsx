@@ -22,13 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased dark">
+    <html lang="en" className="min-h-screen antialiased dark">
       <head>
         {/* Preconnect to Google Fonts API */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${spaceGrotesk.variable} min-h-full flex flex-col bg-black text-white`}>
+      <body className={`${spaceGrotesk.variable} min-h-screen flex flex-col bg-black text-white`}>
         <LiteModeProvider>
           <BackendWakeup />
           <SmoothScroll>
