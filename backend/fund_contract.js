@@ -1,6 +1,6 @@
 const { Keypair, rpc, TransactionBuilder, Networks, Account, Asset, Contract, nativeToScVal, xdr } = require('@stellar/stellar-sdk');
 
-const CONTRACT_ID = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+const CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
 const NATIVE_SAC = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 
 async function fundContract() {

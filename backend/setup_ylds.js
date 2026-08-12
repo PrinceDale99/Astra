@@ -4,7 +4,7 @@
  * One-time setup script that:
  * 1. Generates a fresh YLDS issuer keypair (save the secret!)
  * 2. Creates a distributor keypair
- * 3. Creates a trustline from distributor → issuer
+ * 3. Creates a trustline from distributor ? issuer
  * 4. Issues 3,000,000 YLDS to the distributor (classic payment)
  * 5. Transfers 3,000,000 YLDS to the AstraRepo contract via the YLDS SAC
  *
@@ -28,7 +28,7 @@ const {
   Contract,
 } = require('@stellar/stellar-sdk');
 
-const REPO_CONTRACT_ID = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+const REPO_CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const SOROBAN_URL = 'https://soroban-testnet.stellar.org';
 const NETWORK = Networks.TESTNET;
@@ -53,29 +53,29 @@ async function main() {
   const horizon = new Horizon.Server(HORIZON_URL);
   const soroban = new rpc.Server(SOROBAN_URL);
 
-  // ─── Step 1: Generate keypairs ────────────────────────────────────────────
+  // --- Step 1: Generate keypairs --------------------------------------------
   const issuer = Keypair.random();
   const distributor = Keypair.random();
   const ylds = new Asset('YLDS', issuer.publicKey());
   const yldsSacId = ylds.contractId(NETWORK);
 
-  console.log('\n╔══════════════════════════════════════════════════════╗');
-  console.log('║  Astra YLDS Setup Script                             ║');
-  console.log('╚══════════════════════════════════════════════════════╝');
+  console.log('\n+------------------------------------------------------+');
+  console.log('�  Astra YLDS Setup Script                             �');
+  console.log('+------------------------------------------------------+');
   console.log(`\nIssuer Public:      ${issuer.publicKey()}`);
-  console.log(`Issuer Secret:      ${issuer.secret()} ← SAVE THIS`);
+  console.log(`Issuer Secret:      ${issuer.secret()} ? SAVE THIS`);
   console.log(`Distributor Public: ${distributor.publicKey()}`);
   console.log(`YLDS SAC ID:        ${yldsSacId}`);
   console.log(`\nFunding accounts via Friendbot...`);
 
-  // ─── Step 2: Fund issuer and distributor via Friendbot ────────────────────
+  // --- Step 2: Fund issuer and distributor via Friendbot --------------------
   await Promise.all([
     fetch(`https://friendbot.stellar.org/?addr=${issuer.publicKey()}`).then((r) => r.json()),
     fetch(`https://friendbot.stellar.org/?addr=${distributor.publicKey()}`).then((r) => r.json()),
   ]);
   await sleep(3000); // wait for Horizon to index
 
-  // ─── Step 3: Distributor creates trustline for YLDS ──────────────────────
+  // --- Step 3: Distributor creates trustline for YLDS ----------------------
   console.log('\nCreating YLDS trustline for distributor...');
   let distAcct = await horizon.loadAccount(distributor.publicKey());
   let trustTx = new TransactionBuilder(distAcct, { fee: '100000', networkPassphrase: NETWORK })
@@ -85,10 +85,10 @@ async function main() {
   trustTx.sign(distributor);
   const trustResult = await horizon.submitTransaction(trustTx);
   if (!trustResult.successful) throw new Error('Trustline creation failed');
-  console.log('  ✅ Trustline created');
+  console.log('  ? Trustline created');
   await sleep(3000);
 
-  // ─── Step 4: Issuer mints 3M YLDS to distributor ─────────────────────────
+  // --- Step 4: Issuer mints 3M YLDS to distributor -------------------------
   console.log(`\nMinting ${YLDS_AMOUNT.toLocaleString()} YLDS to distributor...`);
   const issuerAcct = await horizon.loadAccount(issuer.publicKey());
   let mintTx = new TransactionBuilder(issuerAcct, { fee: '100000', networkPassphrase: NETWORK })
@@ -104,10 +104,10 @@ async function main() {
   mintTx.sign(issuer);
   const mintResult = await horizon.submitTransaction(mintTx);
   if (!mintResult.successful) throw new Error('Minting failed');
-  console.log(`  ✅ ${YLDS_AMOUNT.toLocaleString()} YLDS minted to distributor`);
+  console.log(`  ? ${YLDS_AMOUNT.toLocaleString()} YLDS minted to distributor`);
   await sleep(3000);
 
-  // ─── Step 5: Distributor transfers 3M YLDS to AstraRepo contract ──────────
+  // --- Step 5: Distributor transfers 3M YLDS to AstraRepo contract ----------
   // Classic assets cannot be sent to a contract address via classic `payment`.
   // Must use the SAC's `transfer` function (a Soroban invocation).
   console.log(`\nTransferring ${YLDS_AMOUNT.toLocaleString()} YLDS to AstraRepo contract via SAC...`);
@@ -137,21 +137,21 @@ async function main() {
 
   console.log(`  Waiting for confirmation (hash: ${sendRes.hash})...`);
   await pollTx(soroban, sendRes.hash);
-  console.log(`  ✅ ${YLDS_AMOUNT.toLocaleString()} YLDS delivered to AstraRepo contract`);
+  console.log(`  ? ${YLDS_AMOUNT.toLocaleString()} YLDS delivered to AstraRepo contract`);
 
-  // ─── Summary ──────────────────────────────────────────────────────────────
-  console.log('\n╔══════════════════════════════════════════════════════╗');
-  console.log('║  Setup Complete! Update your config with:            ║');
-  console.log('╚══════════════════════════════════════════════════════╝');
+  // --- Summary --------------------------------------------------------------
+  console.log('\n+------------------------------------------------------+');
+  console.log('�  Setup Complete! Update your config with:            �');
+  console.log('+------------------------------------------------------+');
   console.log(`\nYLDS_SAC_ID  = "${yldsSacId}"`);
   console.log(`ISSUER_KEY   = "${issuer.publicKey()}"`);
-  console.log(`ISSUER_SECRET= "${issuer.secret()}" ← store in .env`);
-  console.log(`\nUpdate frontend/src/config/contracts.ts → YLDS_SAC_CONTRACT_ID`);
+  console.log(`ISSUER_SECRET= "${issuer.secret()}" ? store in .env`);
+  console.log(`\nUpdate frontend/src/config/contracts.ts ? YLDS_SAC_CONTRACT_ID`);
   console.log(`Then re-initialize (or re-deploy) the AstraRepo contract`);
   console.log(`with the new YLDS SAC address.\n`);
 }
 
 main().catch((err) => {
-  console.error('\n❌ Setup failed:', err.message || err);
+  console.error('\n? Setup failed:', err.message || err);
   process.exit(1);
 });

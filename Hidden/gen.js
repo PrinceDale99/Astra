@@ -1,7 +1,7 @@
 const { Keypair, rpc, Contract, TransactionBuilder, Networks, xdr, nativeToScVal, Account, Operation, Asset, Horizon } = require('@stellar/stellar-sdk');
 const fs = require('fs');
 
-const CONTRACT_ID = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+const CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
 const MD_FILE = 'interactions.md';
 
 const YLDS_ASSET = new Asset('YLDS', 'GDWVUZ6W6WTJUTCM23LXZYU63D7D5PKHXZIQ3BMTNYN5KLFDH7NIJOZC');
@@ -77,7 +77,7 @@ async function generate() {
             tx.sign(kp);
 
             const hash = await sendTxAndWait(server, tx);
-            console.log(`✅ Success! Hash: ${hash}`);
+            console.log(`? Success! Hash: ${hash}`);
             
             const expertLink = `https://stellar.expert/explorer/testnet/tx/${hash}`;
             const mdLine = `| ${address} | ${hash} | [Link](${expertLink}) | Passed |\n`;
@@ -88,7 +88,7 @@ async function generate() {
             console.error('Error during interaction:', err.message);
         }
     }
-    console.log(`\n🎉 Successfully generated 52 interactions!`);
+    console.log(`\n?? Successfully generated 52 interactions!`);
 }
 
 generate();

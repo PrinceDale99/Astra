@@ -12,7 +12,7 @@
 <br/>
 
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-7B2FBE?style=for-the-badge&logo=stellar&logoColor=white)](https://stellar.org)
-[![Testnet Live](https://img.shields.io/badge/Testnet-LIVE-22c55e?style=for-the-badge&logo=checkmarx&logoColor=white)](https://lab.stellar.org/r/testnet/contract/CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US)
+[![Testnet Live](https://img.shields.io/badge/Testnet-LIVE-22c55e?style=for-the-badge&logo=checkmarx&logoColor=white)](https://lab.stellar.org/r/testnet/contract/CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![SnarkJS](https://img.shields.io/badge/SnarkJS-Circom-FFB13B?style=for-the-badge&logo=zk&logoColor=white)](#)
@@ -277,8 +277,8 @@ An automated static analysis and manual security review is scheduled.
 ### Testnet
 | | |
 |---|---|
-| **Contract Address** | `CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US` |
-| **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US) |
+| **Contract Address** | `CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7` |
+| **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7) |
 <img src="public/testnet.png" alt="Testnet Deployment Screenshot" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
 ### Testnet Interactions
@@ -408,7 +408,7 @@ The following V2 improvements were directly built in response to the survey resu
 | 2 | *"3D vault scene causes lag on lower-end devices"* | **Lite Mode Toggle** — Header button to completely unmount the Three.js canvas and replace it with a lightweight CSS + SVG placeholder. Auto-activates on `prefers-reduced-motion` OS setting | [`bf0e92c`](https://github.com/PrinceDale99/Astra/commit/bf0e92c) |
 | 3 | *"Strong demand for a dedicated history tab for old/liquidated transactions"* | **Deal History Page** — Paginated `/history` page with filter tabs (All / Repaid / Liquidated), borrower address search, and persistent SQLite-backed `deal_history` table | [`f9325af`](https://github.com/PrinceDale99/Astra/commit/f9325af) |
 | 4 | *"Dashboard does not always update instantly"* | **WebSocket Real-Time Indexer** — Replaced 10s polling loop with a WebSocket broadcast server; frontend `useRealtimeDeals` hook merges live events without full re-fetch. Green `● LIVE` badge on analytics page | [`f6bc78e`](https://github.com/PrinceDale99/Astra/commit/f6bc78e) |
-| 5 | *"Frustration migrating to new contract addresses after bug fixes"* | **Upgradeable Contract** — `upgrade()` function using `env.deployer().update_current_contract_wasm()` replaces WASM bytecode in-place. Contract address `CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US` is **permanent** across all future upgrades | [`fc56e41`](https://github.com/PrinceDale99/Astra/commit/fc56e41) |
+| 5 | *"Frustration migrating to new contract addresses after bug fixes"* | **Upgradeable Contract** — `upgrade()` function using `env.deployer().update_current_contract_wasm()` replaces WASM bytecode in-place. Contract address `CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7` is **permanent** across all future upgrades | [`fc56e41`](https://github.com/PrinceDale99/Astra/commit/fc56e41) |
 | 6 | *"Dormant testnet deals expire or disappear"* | **State Archival + Restore Deal** — Switched `DealState` from `temporary()` to `persistent()` storage with 30-day TTL. Added `restore_deal()` contract function and amber `⚠ RESTORE DEAL` button on the frontend for archived deal recovery | [`981b31f`](https://github.com/PrinceDale99/Astra/commit/981b31f) |
 | 7 | *"Fatigue from repeatedly typing wallet passwords"* | **Secp256r1 Passkey Auth** — `register_passkey()` contract function stores WebAuthn P-256 credentials on-chain. Frontend `usePasskey` hook triggers OS-native FaceID / TouchID / Windows Hello for deal authorization instead of typed passwords | [`66b2c6e`](https://github.com/PrinceDale99/Astra/commit/66b2c6e) |
 | 8 | *"Concurrent deal creations under load"* | **Parallel Event Indexer** — Backend now processes batches of Soroban events concurrently via `Promise.all`, replacing sequential `forEach` iteration | [`d551195`](https://github.com/PrinceDale99/Astra/commit/d551195) |

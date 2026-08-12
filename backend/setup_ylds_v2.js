@@ -26,14 +26,14 @@ const {
   StrKey,
 } = require('@stellar/stellar-sdk');
 
-// ─── Config from previous setup_ylds.js run ──────────────────────────────────
+// --- Config from previous setup_ylds.js run ----------------------------------
 const ISSUER_SECRET = 'SBXCMEHHQOMHRJJCNMIAWWY4SC6K5NYI64Z274FH6LJFVFPXLAZL4L4C';
 const DISTRIBUTOR_PUB = 'GDMOG6J75UVEK7Y3AVZ3RSBNX5A4PIDW7J4EJ7BAVHSUPFVFU7RLMFFG';
 const YLDS_SAC_ID = 'CBT2FAHTV57M4LFZREZNOU7XYQQZWKX3GKCF3RGVX7DJVYNFOVJ3TFVT';
 
-// ─── Target: NEW AstraRepo contract (will be set after deploy_contract.js runs) ─
+// --- Target: NEW AstraRepo contract (will be set after deploy_contract.js runs) -
 // For now, we fund the existing contract; update once re-deployed.
-const TARGET_CONTRACT = process.argv[2] || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+const TARGET_CONTRACT = process.argv[2] || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
 
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const SOROBAN_URL = 'https://soroban-testnet.stellar.org';
@@ -48,7 +48,7 @@ async function pollTx(server, hash) {
   process.stdout.write('  Waiting');
   for (let i = 0; i < 30; i++) {
     const status = await server.getTransaction(hash);
-    if (status.status === 'SUCCESS') { process.stdout.write(' ✅\n'); return status; }
+    if (status.status === 'SUCCESS') { process.stdout.write(' ?\n'); return status; }
     if (status.status === 'FAILED') { throw new Error('Tx FAILED: ' + JSON.stringify(status)); }
     process.stdout.write('.');
     await sleep(2000);
@@ -63,14 +63,14 @@ async function main() {
   const issuer = Keypair.fromSecret(ISSUER_SECRET);
   const ylds = new Asset('YLDS', issuer.publicKey());
 
-  console.log('\n╔══════════════════════════════════════════════════════╗');
-  console.log('║  YLDS SAC Deploy & Fund                              ║');
-  console.log('╚══════════════════════════════════════════════════════╝');
+  console.log('\n+------------------------------------------------------+');
+  console.log('�  YLDS SAC Deploy & Fund                              �');
+  console.log('+------------------------------------------------------+');
   console.log(`\nIssuer:      ${issuer.publicKey()}`);
   console.log(`YLDS SAC:    ${YLDS_SAC_ID}`);
   console.log(`Target:      ${TARGET_CONTRACT}`);
 
-  // ─── Step 1: Deploy the YLDS SAC ─────────────────────────────────────────
+  // --- Step 1: Deploy the YLDS SAC -----------------------------------------
   console.log('\n[1/2] Deploying YLDS SAC on Soroban...');
   const issuerAcct = await horizon.loadAccount(issuer.publicKey());
   let sourceAccount = new Account(issuer.publicKey(), issuerAcct.sequence);
@@ -106,9 +106,9 @@ async function main() {
 
   const simDeploy = await soroban.simulateTransaction(deployTx);
   if (rpc.Api.isSimulationError(simDeploy)) {
-    // SAC might already be deployed — that's fine, continue
+    // SAC might already be deployed � that's fine, continue
     if (simDeploy.error.includes('already exists') || simDeploy.error.includes('AlreadyExists')) {
-      console.log('  ℹ️  SAC already deployed, skipping...');
+      console.log('  ??  SAC already deployed, skipping...');
     } else {
       throw new Error('SAC deploy simulation failed: ' + simDeploy.error);
     }
@@ -120,11 +120,11 @@ async function main() {
       throw new Error('SAC deploy send failed: ' + JSON.stringify(deployRes));
     }
     await pollTx(soroban, deployRes.hash);
-    console.log('  ✅ YLDS SAC deployed on Soroban');
+    console.log('  ? YLDS SAC deployed on Soroban');
     await sleep(3000);
   }
 
-  // ─── Step 2: Transfer 3M YLDS from distributor to target contract ─────────
+  // --- Step 2: Transfer 3M YLDS from distributor to target contract ---------
   console.log(`\n[2/2] Sending 3,000,000 YLDS to ${TARGET_CONTRACT}...`);
 
   // We need the distributor keypair. In this case, the distributor account still
@@ -163,11 +163,11 @@ async function main() {
     throw new Error('Mint send failed: ' + JSON.stringify(mintRes));
   }
   await pollTx(soroban, mintRes.hash);
-  console.log('\n  ✅ 3,000,000 YLDS minted to contract!');
+  console.log('\n  ? 3,000,000 YLDS minted to contract!');
 
-  console.log('\n╔══════════════════════════════════════════════════════╗');
-  console.log('║  Done!                                               ║');
-  console.log('╚══════════════════════════════════════════════════════╝');
+  console.log('\n+------------------------------------------------------+');
+  console.log('�  Done!                                               �');
+  console.log('+------------------------------------------------------+');
   console.log(`\nYLDS_SAC_ID   = "${YLDS_SAC_ID}"`);
   console.log(`YLDS_ISSUER   = "${issuer.publicKey()}"`);
   console.log(`YLDS_ISSUER_SECRET = "${ISSUER_SECRET}"`);
@@ -175,6 +175,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('\n❌ Failed:', err.message || err);
+  console.error('\n? Failed:', err.message || err);
   process.exit(1);
 });

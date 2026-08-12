@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -153,7 +153,7 @@ app.get('/api/v1/analytics', async (req, res) => {
  */
 app.get('/api/v1/config', (req, res) => {
     const config = {
-        astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US',
+        astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7',
         nativeXlmSac: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
         yldsSacId: process.env.YLDS_SAC_ID || '',
         yldsIssuer: process.env.YLDS_ISSUER || '',

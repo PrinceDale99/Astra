@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IndexerService = void 0;
 const stellar_sdk_1 = require("@stellar/stellar-sdk");
@@ -47,7 +47,7 @@ class IndexerService {
                     filters: [
                         {
                             type: "contract",
-                            contractIds: ["CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US"]
+                            contractIds: ["CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7"]
                         }
                     ]
                 });

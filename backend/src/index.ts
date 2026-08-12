@@ -91,7 +91,7 @@ app.get('/api/v1/analytics', async (req, res) => {
     const historicalTvl = await dbService.getHistoricalTvl();
     const activeInstitutionsCount = await dbService.getActiveInstitutionsCount();
     const dbDeals = await dbService.getRecentDeals();          // last 50 for activity table
-    const totalDealsCount = await dbService.getTotalDealsCount(); // ✅ real COUNT(*)
+    const totalDealsCount = await dbService.getTotalDealsCount(); // ? real COUNT(*)
 
     const recentActivity = dbDeals.map((deal: any) => ({
       id: deal.id.substring(0, 12) + '...',
@@ -129,7 +129,7 @@ app.get('/api/v1/analytics', async (req, res) => {
  */
 app.get('/api/v1/config', (req, res) => {
   const config = {
-    astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US',
+    astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7',
     nativeXlmSac: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
     yldsSacId: process.env.YLDS_SAC_ID || '',
     yldsIssuer: process.env.YLDS_ISSUER || '',
@@ -203,7 +203,7 @@ app.post('/api/v1/faucet/ylds', async (req, res) => {
 
 // POST /api/v1/deals/record
 // Called directly by the frontend immediately after a successful Freighter transaction.
-// This is the primary write path — the on-chain indexer is the secondary/fallback.
+// This is the primary write path � the on-chain indexer is the secondary/fallback.
 app.post('/api/v1/deals/record', async (req, res) => {
   try {
     const { dbService } = require('./services/db.service');
@@ -307,7 +307,7 @@ app.get('/api/v1/deals/:dealId/margin', async (req, res) => {
       return res.status(400).json({ error: 'Invalid dealId' });
     }
     const { rpc: SorobanRpc, Contract, nativeToScVal, scValToNative, TransactionBuilder, Networks, Keypair, Account } = await import('@stellar/stellar-sdk');
-    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
     const server = new SorobanRpc.Server('https://soroban-testnet.stellar.org');
     const contract = new Contract(contractId);
     // Use a throw-away keypair as the source for read-only simulation
@@ -343,7 +343,7 @@ app.post('/api/v1/deals/:dealId/restore', async (req, res) => {
     }
     // Return instructions for the frontend to build a RestoreFootprint + restore_deal tx
     // The actual signing happens client-side via Freighter
-    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
     res.json({
       dealId: dealIdNum,
       contractId,
@@ -365,7 +365,7 @@ app.post('/api/v1/passkey/register', async (req, res) => {
       return res.status(400).json({ error: 'walletAddress, credentialId, and publicKey are required' });
     }
     // Return contract call info for frontend to sign and submit via Freighter
-    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
     res.json({
       contractId,
       function: 'register_passkey',

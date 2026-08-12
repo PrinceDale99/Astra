@@ -61,12 +61,12 @@ export class IndexerService {
           filters: [
             {
               type: 'contract',
-              contractIds: ['CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US'],
+              contractIds: ['CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7'],
             },
           ],
         });
 
-        // ✅ FIX 1: ALWAYS advance lastLedger — regardless of whether events exist.
+        // ? FIX 1: ALWAYS advance lastLedger � regardless of whether events exist.
         // This prevents the indexer from re-scanning the same ledger range forever.
         if (response.latestLedger && response.latestLedger > this.lastLedger) {
           this.lastLedger = response.latestLedger;
@@ -79,7 +79,7 @@ export class IndexerService {
           await Promise.all(response.events.map(async (event: any) => {
             const parsed = this.processEvent(event);
             if (parsed) {
-              // ✅ FIX 2: Accumulate TVL from deal_created events using the correct tuple index
+              // ? FIX 2: Accumulate TVL from deal_created events using the correct tuple index
               if (parsed.xlm_deposit > 0) {
                 this.currentTvlStroops += BigInt(Math.round(parsed.xlm_deposit * 1e7));
                 updatedTvl = true;
@@ -110,7 +110,7 @@ export class IndexerService {
       let eventType = 'Unknown';
       let dealIdOnChain: number | null = null;
 
-      // ✅ FIX 3: Correctly parse topic array — [eventName, dealId]
+      // ? FIX 3: Correctly parse topic array � [eventName, dealId]
       if (event.topic && event.topic.length > 0) {
         parsedTopic = event.topic.map((t: string) => {
           try {
@@ -125,7 +125,7 @@ export class IndexerService {
         }
       }
 
-      // ✅ FIX 4: Parse value — our contract emits tuples, not objects
+      // ? FIX 4: Parse value � our contract emits tuples, not objects
       let parsedValue: any = null;
       if (event.value && event.value.xdr) {
         try {
@@ -133,7 +133,7 @@ export class IndexerService {
         } catch { /* ignore */ }
       }
 
-      // ✅ FIX 5: Use ledgerClosedAt (correct SDK field) not timestamp
+      // ? FIX 5: Use ledgerClosedAt (correct SDK field) not timestamp
       const closedAt = event.ledgerClosedAt || event.timestamp || new Date().toISOString();
 
       // Map event types to human-readable labels
@@ -183,7 +183,7 @@ export class IndexerService {
         ledger: event.ledger || 0,
       };
 
-      // ✅ FIX 6: Record deal_created AND closed events to deal_history for the history page
+      // ? FIX 6: Record deal_created AND closed events to deal_history for the history page
       if (eventType === 'deal_created') {
         dbService.recordClosedDeal({
           id: dealId,

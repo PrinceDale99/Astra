@@ -1,6 +1,6 @@
 const { Keypair, rpc, Contract, TransactionBuilder, Networks, xdr, nativeToScVal, Account } = require('@stellar/stellar-sdk');
 
-const CONTRACT_ID = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+const CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
 const NATIVE_SAC = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 
 async function simulateDeals() {
@@ -73,9 +73,9 @@ async function simulateDeals() {
                 txStatus = await server.getTransaction(hash);
             }
             if (txStatus.status === 'SUCCESS') {
-                console.log(`✅ Deal ${i+1} Executed! Hash: ${hash}`);
+                console.log(`? Deal ${i+1} Executed! Hash: ${hash}`);
             } else {
-                console.error(`❌ Deal ${i+1} failed on chain.`);
+                console.error(`? Deal ${i+1} failed on chain.`);
             }
         }
     }

@@ -27,7 +27,7 @@ async function mintYLDS() {
     await horizon.submitTransaction(tx);
     
     console.log('Minting 3,000,000 YLDS to the Distributor...');
-    const REPO_CONTRACT = 'CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US';
+    const REPO_CONTRACT = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
     
     const issuerAcctData = await horizon.loadAccount(issuer.publicKey());
     
@@ -68,9 +68,9 @@ async function mintYLDS() {
     }
     
     if (txStatus.status === 'SUCCESS') {
-        console.log('✅ Successfully funded contract with 3M YLDS!');
+        console.log('? Successfully funded contract with 3M YLDS!');
     } else {
-        console.error('❌ Failed to fund contract via SAC', txStatus);
+        console.error('? Failed to fund contract via SAC', txStatus);
     }
     
     console.log('---');

@@ -8,7 +8,7 @@ async function test() {
   try {
     const response = await server.getEvents({
       startLedger: 0,
-      filters: [{ type: "contract", contractIds: ["CDNDVKIT56I7ZQQB7ONPWRNLMEX4BCZ7UKJQZDWLL6L6XHW7IW6UX5US"] }]
+      filters: [{ type: "contract", contractIds: ["CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7"] }]
     });
     console.log("Success! Events fetched:", response.events ? response.events.length : 0);
   } catch (e) {
