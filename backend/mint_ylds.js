@@ -27,7 +27,7 @@ async function mintYLDS() {
     await horizon.submitTransaction(tx);
     
     console.log('Minting 3,000,000 YLDS to the Distributor...');
-    const REPO_CONTRACT = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
+    const REPO_CONTRACT = 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2';
     
     const issuerAcctData = await horizon.loadAccount(issuer.publicKey());
     

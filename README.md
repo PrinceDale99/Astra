@@ -12,7 +12,7 @@
 <br/>
 
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-7B2FBE?style=for-the-badge&logo=stellar&logoColor=white)](https://stellar.org)
-[![Testnet Live](https://img.shields.io/badge/Testnet-LIVE-22c55e?style=for-the-badge&logo=checkmarx&logoColor=white)](https://lab.stellar.org/r/testnet/contract/CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7)
+[![Testnet Live](https://img.shields.io/badge/Testnet-LIVE-22c55e?style=for-the-badge&logo=checkmarx&logoColor=white)](https://lab.stellar.org/r/testnet/contract/CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![SnarkJS](https://img.shields.io/badge/SnarkJS-Circom-FFB13B?style=for-the-badge&logo=zk&logoColor=white)](#)
@@ -156,7 +156,7 @@ Astra runs a live indexer that decodes Soroban XDR events directly from the Stel
 
 <div align="center">
   <img src="public/analytics.png" alt="Astra Live Protocol Analytics Dashboard" width="100%" style="border-radius:12px; box-shadow: 0 4px 30px rgba(0, 255, 204, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 15px; margin-bottom: 8px;"/>
-  <p align="center"><sub>↑ Real-time analytics dashboard — TVL growth, health factor distribution, and active institution count.</sub></p>
+  <p align="center"><sub>â†‘ Real-time analytics dashboard â€” TVL growth, health factor distribution, and active institution count.</sub></p>
 </div>
 
 <br/>
@@ -164,8 +164,8 @@ Astra runs a live indexer that decodes Soroban XDR events directly from the Stel
 Every transaction broadcast to the Stellar Testnet is indexed within 10 seconds. The table below shows live `create_repo_deal` invocations decoded directly from Soroban XDR, identifying borrower addresses, collateral amounts, and sequence numbers.
 
 <div align="center">
-  <img src="public/transaction.png" alt="Astra Live Transaction Activity — Soroban contract invocations on Stellar Testnet" width="100%" style="border-radius:12px; box-shadow: 0 4px 30px rgba(0, 210, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px; margin-bottom: 8px;"/>
-  <p align="center"><sub>↑ Live transaction feed — <code>create_repo_deal</code> invocations on <a href="https://stellar.expert/explorer/testnet/account/GASPE6ZZRPXJFD43CNABKBUUNNFIVJH6SFDEIQ3FKSVOZ3ICKI66UZ3C">Stellar Expert Testnet</a>. Each row is a borrower creating a collateralized repo position against contract <code>CDNDVK…UX5US</code>.</sub></p>
+  <img src="public/transaction.png" alt="Astra Live Transaction Activity â€” Soroban contract invocations on Stellar Testnet" width="100%" style="border-radius:12px; box-shadow: 0 4px 30px rgba(0, 210, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px; margin-bottom: 8px;"/>
+  <p align="center"><sub>â†‘ Live transaction feed â€” <code>create_repo_deal</code> invocations on <a href="https://stellar.expert/explorer/testnet/account/GASPE6ZZRPXJFD43CNABKBUUNNFIVJH6SFDEIQ3FKSVOZ3ICKI66UZ3C">Stellar Expert Testnet</a>. Each row is a borrower creating a collateralized repo position against contract <code>CDNDVKâ€¦UX5US</code>.</sub></p>
 </div>
 
 ---
@@ -277,67 +277,66 @@ An automated static analysis and manual security review is scheduled.
 ### Testnet
 | | |
 |---|---|
-| **Contract Address** | `CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7` |
-| **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7) |
+| **Contract Address** | `CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2` |
+| **Explorer** | [Stellar Expert (Testnet)](https://stellar.expert/explorer/testnet/contract/CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2) |
 <img src="public/testnet.png" alt="Testnet Deployment Screenshot" width="100%" style="border-radius:12px; margin-top: 1rem;"/>
 
 ### Testnet Interactions
 
 | Testnet Address | TxId | Stellar Expert Link |
 |---|---|---|
-| GDQA3E5ZXTGUFZ6FEQUBN23MSB3XMP4JCSLX2UJJVP7VVTCTZG443JC3 | a3993aea841457a9d842350e9fc958cc45ce72413fceeee2b1022380fbffd8a8 | [Link](https://stellar.expert/explorer/testnet/tx/a3993aea841457a9d842350e9fc958cc45ce72413fceeee2b1022380fbffd8a8) |
-| GBWM7FZOMKHBLJHWMPSKJSRFR33QUDLVP47XX5VAKCTWZPHN7BZWWP4J | de2f47d2fc2083747a95d63498224f530163e4d98ea7befb538464a617d9360f | [Link](https://stellar.expert/explorer/testnet/tx/de2f47d2fc2083747a95d63498224f530163e4d98ea7befb538464a617d9360f) |
-| GBJ7YEBVGVHHUEI22M4UYIUFHPKQPMRU43TMR3UKQBFXNT3UPPW5FNBZ | c409f9fcc77b05dcc4f6f718f7a9ab639f647b64786392d86f74a75d88bf750c | [Link](https://stellar.expert/explorer/testnet/tx/c409f9fcc77b05dcc4f6f718f7a9ab639f647b64786392d86f74a75d88bf750c) |
-| GDHQ5OMWT2KV4UMGE3AOYYSMSIB3DNAKAK5Y2R766TO7WOZLJH33MN3X | 13cbac5f3527b50488e8f8bca7b02559a711ea4eecc570d332221d71e471553f | [Link](https://stellar.expert/explorer/testnet/tx/13cbac5f3527b50488e8f8bca7b02559a711ea4eecc570d332221d71e471553f) |
-| GATH2LR5MCA4XFLE4YLH6F4Z4ZKZ7HNMH5QHTJJYGMRR4IXX3FIH7JWT | 935523316e240be54ed71849c142881fa41b67575278a7c85f81b5f53e7b9783 | [Link](https://stellar.expert/explorer/testnet/tx/935523316e240be54ed71849c142881fa41b67575278a7c85f81b5f53e7b9783) |
-| GBOK27QMPA6HXN3IELUTTN2C62D4F6HXSLCZ2HGMUPZ6QAKBAR5CTZFE | ad1dc8c9e9d26a9d15cdf14c382bd66887c2d9a0a3bbf0151b40a637abc76848 | [Link](https://stellar.expert/explorer/testnet/tx/ad1dc8c9e9d26a9d15cdf14c382bd66887c2d9a0a3bbf0151b40a637abc76848) |
-| GAKNK7FRNQB4IBHNQISA3CHJJZWXJNSEPBFVW5ZYORZTBLP4T4M5T5JC | 0e73d2051f8f6d3f508a9ddbddc94ef7befd928680e2e9afecec11605e598156 | [Link](https://stellar.expert/explorer/testnet/tx/0e73d2051f8f6d3f508a9ddbddc94ef7befd928680e2e9afecec11605e598156) |
-| GBBSNUEZVEQZOM4WRFBL3Q2CIVB5VHSQO6QTDG6224GR5RKSAJWKUOMV | 702e4530be8120ccc3dc65faea7ae88c82e7e1cd77e28f177913a1415464dffc | [Link](https://stellar.expert/explorer/testnet/tx/702e4530be8120ccc3dc65faea7ae88c82e7e1cd77e28f177913a1415464dffc) |
-| GBYOLW2HALH3T2HMW6FW23NC53MJQ3XKFGPELY4MQ2L4SIS2P7Q2DLHE | 0619b9ea08a339e8926c4da251cb052566884fca1e82d523804a94f1cf4321da | [Link](https://stellar.expert/explorer/testnet/tx/0619b9ea08a339e8926c4da251cb052566884fca1e82d523804a94f1cf4321da) |
-| GD4ILURTNLRWUKILEK7MICPPQK2FCYKIT4U7Y5GK6R2DCTPI6TQKVOU3 | ce8c044690548dac0754b0bb74d6c8ebeaec1b8d83a838d2a27f06f922e99e16 | [Link](https://stellar.expert/explorer/testnet/tx/ce8c044690548dac0754b0bb74d6c8ebeaec1b8d83a838d2a27f06f922e99e16) |
-| GBN4U55LFUWERPJZDDADBB2Y2GS4DEWWNEBJN6SXIKF7DJE4HIYYX5HD | 1761ed019e54d4026d7cb5663097513653dd408e90f117d013e53a4c90afbd72 | [Link](https://stellar.expert/explorer/testnet/tx/1761ed019e54d4026d7cb5663097513653dd408e90f117d013e53a4c90afbd72) |
-| GAO4JUU3325NEWCNHAJXLYKQI6NDSGQ37KO7WELZZXCTIOYJBZWFRJEF | dfd41fc2c4f8a9316c9c694ebd32612ebe68a28514516956160329d2edce536a | [Link](https://stellar.expert/explorer/testnet/tx/dfd41fc2c4f8a9316c9c694ebd32612ebe68a28514516956160329d2edce536a) |
-| GCYZZJEZKXWKXPND47MPOXVZHQTRPGQPPBFPH6JH2WHRKLKKHDFCFOHL | 4d22606ff184ed3c976ba94f4b84c5247526a5e85a4be04887f15f424072890e | [Link](https://stellar.expert/explorer/testnet/tx/4d22606ff184ed3c976ba94f4b84c5247526a5e85a4be04887f15f424072890e) |
-| GBLFUD6T6EIA4I235QR7BSDOLLMUQPB6DYCXTS53HLQVIPABQO2B6AUX | f3807023b0c88a9765d438ee7bb958aafa02b09c75424bac43a77065d290b5b9 | [Link](https://stellar.expert/explorer/testnet/tx/f3807023b0c88a9765d438ee7bb958aafa02b09c75424bac43a77065d290b5b9) |
-| GD2IFSMJEHK43AEWMBFTDZQ7F3DDN5FPZQUWNAFLU5PTZEXHCKATF5UX | b6e528f791e73042dcc4678f2bcc068e1d767522e9563f07e035c44deede00f9 | [Link](https://stellar.expert/explorer/testnet/tx/b6e528f791e73042dcc4678f2bcc068e1d767522e9563f07e035c44deede00f9) |
-| GAL7R4MHT3CDQAWLX4MORQ3CKAXEPMQVWVJWVP5RUOX5TON2D22ISI2K | 100a9b459219f91d295ddbecde45744fd80c292d4fdb162256e15475625fdb22 | [Link](https://stellar.expert/explorer/testnet/tx/100a9b459219f91d295ddbecde45744fd80c292d4fdb162256e15475625fdb22) |
-| GCJTPLLGMUBKVCG6J3YNDZJHRWQRPQHMEZ2BJ3ZHZQ3WTKQECXVEGUA2 | 3ae160975d57b12ab0acf6dec1fc0f5b5257c0dbfcf8f8407f240c03e7bebf60 | [Link](https://stellar.expert/explorer/testnet/tx/3ae160975d57b12ab0acf6dec1fc0f5b5257c0dbfcf8f8407f240c03e7bebf60) |
-| GDOKERNKMNXDUHZ7IMV7EAG2WGEOINMEONOCZQKWSLT5R6X4C5PGLHS2 | 9bf09993e2472d1b0e45bc127d54d64a9febdb41275101438a634f5fef5d6d0f | [Link](https://stellar.expert/explorer/testnet/tx/9bf09993e2472d1b0e45bc127d54d64a9febdb41275101438a634f5fef5d6d0f) |
-| GB6DSNYWCACTIDFIHW7S44TTBLK7Q6THH334U4BVLPRK2IGHFZZ5OMKC | 71d02e1309d215cf6ff04e7760a90d5678b087c4016b3378b2f83c73ed414482 | [Link](https://stellar.expert/explorer/testnet/tx/71d02e1309d215cf6ff04e7760a90d5678b087c4016b3378b2f83c73ed414482) |
-| GBRFE2GBNJLNRP3KLZPELZO7A2F7FFWSHGH7AVEHOGOTAXGYS2L62DHD | 3b06fab60e9a504aaf0c44e43f08499831bfdfa05f5ba3472695d9f63d0b1528 | [Link](https://stellar.expert/explorer/testnet/tx/3b06fab60e9a504aaf0c44e43f08499831bfdfa05f5ba3472695d9f63d0b1528) |
-| GBBVL2UIVRUQMCPH55VR5NYNAOM7R3YIZS7IKLXBYKUP45WR3X3G2U3A | 21bee73148111547c56701c33395fb56ce715ec149a8742f9eeb7f0d52bccd20 | [Link](https://stellar.expert/explorer/testnet/tx/21bee73148111547c56701c33395fb56ce715ec149a8742f9eeb7f0d52bccd20) |
-| GBIC5Q255RACIBJII5NJIQCXLLAKTJT4GS4J22U4IH4EOX57ASO6EB4B | 20c4add9e491170dfc289899cfb8b0c52affdac128d6dca9ac4251e8a5f3c1b9 | [Link](https://stellar.expert/explorer/testnet/tx/20c4add9e491170dfc289899cfb8b0c52affdac128d6dca9ac4251e8a5f3c1b9) |
-| GD7ASTAWQSRSPG4AMS5KB7XPUTJP4H6VRXMCVDJ7RXZQKW4V422LONNG | 1cfe416772c82c593e3f8de9152608fb56c34fdef8e191a44879803c5f08c63c | [Link](https://stellar.expert/explorer/testnet/tx/1cfe416772c82c593e3f8de9152608fb56c34fdef8e191a44879803c5f08c63c) |
-| GBMHT2K4QWW4RL3LBSPR6XOBN7UBSHZPTSQKNBNK6K5AKHXMEFA45YVU | cd842f28ce6b632104336690586f4f7376c5d7c6c8f308ed8a2715eff2869941 | [Link](https://stellar.expert/explorer/testnet/tx/cd842f28ce6b632104336690586f4f7376c5d7c6c8f308ed8a2715eff2869941) |
-| GAQBXYLBV5HUFVI3RGUHHVVIMOD5HDBK2Q4NCAFV4RER6IZJNBTWCWXP | 85eb6617f2c871cc165e786dcc68f64938050f092b5de41f2236d18ce7223c89 | [Link](https://stellar.expert/explorer/testnet/tx/85eb6617f2c871cc165e786dcc68f64938050f092b5de41f2236d18ce7223c89) |
-| GD4QT3I35MO4M7SWDM565WD637KGHHX52EHKW3BBUVBDPMSZUKMXBX5G | 9a27d2afabe673ccd82bd878e6a84431073fb9d954bd7ab5a1d50b69ba087790 | [Link](https://stellar.expert/explorer/testnet/tx/9a27d2afabe673ccd82bd878e6a84431073fb9d954bd7ab5a1d50b69ba087790) |
-| GAL2N6KQBQ5EDJ6GK4UOF4N76O2R72DNSKJCC6ENLEDW2B2LVIBTWAK2 | 52f01c796239fce3dd91d7f2907c09945eeab735aa7778f0659285dfc63b0ea5 | [Link](https://stellar.expert/explorer/testnet/tx/52f01c796239fce3dd91d7f2907c09945eeab735aa7778f0659285dfc63b0ea5) |
-| GBTGDLQJC2A6RUEW4KA3WZAUZ2BNIC7XOUWKFXHQFLB7JZKZOEUX254T | 3d0faf8056e82cba931b6361ef3a724fef6d2aa2b268875de23ac549490b142c | [Link](https://stellar.expert/explorer/testnet/tx/3d0faf8056e82cba931b6361ef3a724fef6d2aa2b268875de23ac549490b142c) |
-| GBPREK25MIUP7JBLUA23G43E3FHQULE7OS6LUYF5XS5GCHING2ETEWY6 | 78d63da9a3e74e443d5a098f5886b89b171933bb31606d47d18dd54362168f9f | [Link](https://stellar.expert/explorer/testnet/tx/78d63da9a3e74e443d5a098f5886b89b171933bb31606d47d18dd54362168f9f) |
-| GDF2WXDRPJ6SY5RUPJX3B3OCAQFOXPYMIW5EDILVPDK7A3AIFKE2R7CO | 6bd44911074edff384de13cf0e9d3bbdbc334019a71c8e304860a810f090308e | [Link](https://stellar.expert/explorer/testnet/tx/6bd44911074edff384de13cf0e9d3bbdbc334019a71c8e304860a810f090308e) |
-| GA7XZEBSM5QC7T2HPUSTTTKTU3XDZ2OASGJGLN7T3WTXRO2WKJ62PFLX | 8eb6f13bc1f9e56adccffea137bd64e581cd7b7f4a2c9a86653b1f0056d2f7b5 | [Link](https://stellar.expert/explorer/testnet/tx/8eb6f13bc1f9e56adccffea137bd64e581cd7b7f4a2c9a86653b1f0056d2f7b5) |
-| GDW2WFZDWU6D55EL7WASDCDJQSKZLKHMS5I6M4YNLD3EJH2PRDIXHZPD | 37c83499b18482b78ab34298f573b4d3f324eb362192fd5b60d9f0dd4c68646b | [Link](https://stellar.expert/explorer/testnet/tx/37c83499b18482b78ab34298f573b4d3f324eb362192fd5b60d9f0dd4c68646b) |
-| GDYYTEARXCDWRH4K6KXKTD6LP76SXDXXK3TOBBDF52BZSPNHW4SGGIDW | c4d02f5e2c803371e24af8cc26b4078cd6f2c967dc39f271bd84049d1f2f794a | [Link](https://stellar.expert/explorer/testnet/tx/c4d02f5e2c803371e24af8cc26b4078cd6f2c967dc39f271bd84049d1f2f794a) |
-| GBQ2N6PI3PUTG5CNBARRJA6WURTMRSB2TIPTQO6EC2GTLUV2YTYMWIR5 | b579f4aa11367733fbc6a14ae0cabce472e3b0a54f1bcf5ec36fa90ae8b8cfa1 | [Link](https://stellar.expert/explorer/testnet/tx/b579f4aa11367733fbc6a14ae0cabce472e3b0a54f1bcf5ec36fa90ae8b8cfa1) |
-| GBG73ULNVPDRW6BYXR3AOXGPANGLQRPIJPO3PRHEDESCGNHUWRMJROOK | fcd76fefa7b00bcdcac7fd976363ef60aebc07d0491a5b144956094e7ebd4781 | [Link](https://stellar.expert/explorer/testnet/tx/fcd76fefa7b00bcdcac7fd976363ef60aebc07d0491a5b144956094e7ebd4781) |
-| GDF6JE7FG2HTG7GMNBEP6LUAZ25B4Z2PACSWO7WXSTYXNQZG7FD3W5NX | 4ed72e24b1c7ea29876de1cc0986bfebc4a765340ef78b9839be4607c40d7c13 | [Link](https://stellar.expert/explorer/testnet/tx/4ed72e24b1c7ea29876de1cc0986bfebc4a765340ef78b9839be4607c40d7c13) |
-| GCQUWAGTHN5EDGQJLFAPOQ3G2KTFJTX5ARPZYWRL2IVKCHDR3BVP6T5C | 01f7f3ada6c06e328e27790d91b5e3850e538b76ee43ed6ad0be7747f930e63e | [Link](https://stellar.expert/explorer/testnet/tx/01f7f3ada6c06e328e27790d91b5e3850e538b76ee43ed6ad0be7747f930e63e) |
-| GDQCDXIV6NCSILYFXVOPUDGPEZGBETHZMWG43TRPI5H74B7XL7WVUKOC | c609e00f368b66c72f8aee464968fe7e6d4a487f4214bbaab2d6670f9a4c64e5 | [Link](https://stellar.expert/explorer/testnet/tx/c609e00f368b66c72f8aee464968fe7e6d4a487f4214bbaab2d6670f9a4c64e5) |
-| GB4GXHQ5JKBR7ZOJUFHEKTLE52FTIXNA4EDRAVJL6VAJFMPU2N3XX5FK | ca579d6e19c6869dd312b06d6612d0d66c5809364d5c813c65963b7c0075d4c7 | [Link](https://stellar.expert/explorer/testnet/tx/ca579d6e19c6869dd312b06d6612d0d66c5809364d5c813c65963b7c0075d4c7) |
-| GBZEHAQVTIBNN3CVKE6VJG4WHTZO54JDLXKSI7S367WEC5YWDHHNGVVW | e36a597d421e76117e10e05dbe48aec9f7179a35ce6ba9070b4d7d63438e78a4 | [Link](https://stellar.expert/explorer/testnet/tx/e36a597d421e76117e10e05dbe48aec9f7179a35ce6ba9070b4d7d63438e78a4) |
-| GB2CCZHMQPBNRYL6VBRSAFY5QTMSYCUYIOXQH6ZD6YGKZXMIGGEXCOA4 | b672dd865e77473ca949e85368f06f8e1365cd9c88499a7297ad1607da5f9bf1 | [Link](https://stellar.expert/explorer/testnet/tx/b672dd865e77473ca949e85368f06f8e1365cd9c88499a7297ad1607da5f9bf1) |
-| GD72RMEO5ETYN76TI4P2YJFTXVURK76OAR2FTCYQ5HEGII5MLNRGBUZU | 208ce23397762b4482548d5e9c1312ec53c08b5fcfe293d6049f50cade971d6e | [Link](https://stellar.expert/explorer/testnet/tx/208ce23397762b4482548d5e9c1312ec53c08b5fcfe293d6049f50cade971d6e) |
-| GBZGIJXCM6UOZLHWS4O5F67S7MLC5WJ5CNITVRZMJ2VKZNXUXYZK63CR | ddc419950c12227d816169a1568e2945795466f9086de8343e0d6cc6dd0383fa | [Link](https://stellar.expert/explorer/testnet/tx/ddc419950c12227d816169a1568e2945795466f9086de8343e0d6cc6dd0383fa) |
-| GDUO5R2RLU57RJF5XF4HN3AGSJRNVPMHQY7QV47PMU5UWGPHIGQMMSPF | 2a1364eac55bb16283d9e6a3fbe81d721e40ce1ab0e49bcaeff8bd36bf5983f2 | [Link](https://stellar.expert/explorer/testnet/tx/2a1364eac55bb16283d9e6a3fbe81d721e40ce1ab0e49bcaeff8bd36bf5983f2) |
-| GCH72OR6EJ3VZXJW2GO64IRB3ZIGV3QXRCSDTSU3WOGLTJMDAYP6YZ4G | 4c64410a73d6f8ede4fa41e1db803afb9394cd7be88e7c73153e11987324b9f8 | [Link](https://stellar.expert/explorer/testnet/tx/4c64410a73d6f8ede4fa41e1db803afb9394cd7be88e7c73153e11987324b9f8) |
-| GBWZV75PCKGJ5W5IJ7TUTKRTSGJYGCTWOSIJPMC3MFDZOO6FEVKKZH6N | 9987ba6f64c9b2545c6b171a62250ec128280412fc661d33c00c030a64aeb50a | [Link](https://stellar.expert/explorer/testnet/tx/9987ba6f64c9b2545c6b171a62250ec128280412fc661d33c00c030a64aeb50a) |
-| GAKRGQRTMKZSZVLZJZYJ3XJAP63SMYYY4EXSQM5IP2PJMVZFAEYTXNUY | 77ff014d6335f38861a9a8883a470d58d0546555e00614571298aa9ae6ce66c1 | [Link](https://stellar.expert/explorer/testnet/tx/77ff014d6335f38861a9a8883a470d58d0546555e00614571298aa9ae6ce66c1) |
-| GCCGLTLFRMVUENK6TK4LUK6PR7C2MXBQF6TAC6TIDGC7KH5PORK3WGPI | 94d3820581f332fce134f4d029fcd1694f6f96c5b03f089aa1c64d7e0a3089c0 | [Link](https://stellar.expert/explorer/testnet/tx/94d3820581f332fce134f4d029fcd1694f6f96c5b03f089aa1c64d7e0a3089c0) |
-| GAKOLXH7RYENUVMMUVHT4PP2FEAT4RZIWY5PVP6LUC7VEZJCOI5PKNKL | f647ea20987a81a9252296c239d1cceaa34ee674364dc95fb0b02240aa9c493e | [Link](https://stellar.expert/explorer/testnet/tx/f647ea20987a81a9252296c239d1cceaa34ee674364dc95fb0b02240aa9c493e) |
-| GCANLMOHUZRLQQVVHX26AQJCTIU5WKUCYW2BIJYWQN5SGAI2NR4NC34O | b14fa5b16514cca1ba030344085191cf4a929b013b4753685629d10906b2dc55 | [Link](https://stellar.expert/explorer/testnet/tx/b14fa5b16514cca1ba030344085191cf4a929b013b4753685629d10906b2dc55) |
-| GCZS3VGSGFFX6WZO3EV27EMNI7T6AOFFW4F2PC2MOBSGFLPOM4Y7FS3H | d309811c736f0c2421fb6a678f50ab805d5b794c09c4aadbed8b12ecb7764164 | [Link](https://stellar.expert/explorer/testnet/tx/d309811c736f0c2421fb6a678f50ab805d5b794c09c4aadbed8b12ecb7764164) |
-| GASPE6ZZRPXJFD43CNABKBUUNNFIVJH6SFDEIQ3FKSVOZ3ICKI66UZ3C | 34570d8da1230b5eeff7eb988417a3124bd8eb3a328b4a49c07da476b71fec33 | [Link](https://stellar.expert/explorer/testnet/tx/34570d8da1230b5eeff7eb988417a3124bd8eb3a328b4a49c07da476b71fec33) |
-
+| GAMNNUWG73CJ5A75RWW6NORLBWMHQUMKC4BCEAZ4HYUO2OP35Z63OFGS | 58e197a6b417a58c2ed10611a94e1646a2c5efa46706d131d4fae12d36233dbf | [Link](https://stellar.expert/explorer/testnet/tx/58e197a6b417a58c2ed10611a94e1646a2c5efa46706d131d4fae12d36233dbf) |
+| GDRFEQ3XDS2CIG2FUVUEY2RETEUCU7ANFCR3UUK3PJGNKDTQHVWRUKPP | c61032efcece59bbf0ee22832fba9671729784ef46d200201545d7fbabd48f58 | [Link](https://stellar.expert/explorer/testnet/tx/c61032efcece59bbf0ee22832fba9671729784ef46d200201545d7fbabd48f58) |
+| GDZLYI7YNUSI7SPCZWVO42AIVSJ7GGS36TBGYDLXDJQG5REA27O3TUGK | 7f30369327c0916029d00561ead9c4dbe171587574c39366f15a6aa5607a4aac | [Link](https://stellar.expert/explorer/testnet/tx/7f30369327c0916029d00561ead9c4dbe171587574c39366f15a6aa5607a4aac) |
+| GCQTJD5AXEGNMS5K5JJVFEJAOSDFI7NT6UAQE2XERYRN7RWSH3OQWEGP | e7e65c38b177662d5fb3e48c567fb373d1e861bc6ee4ca5f478f093709bc563b | [Link](https://stellar.expert/explorer/testnet/tx/e7e65c38b177662d5fb3e48c567fb373d1e861bc6ee4ca5f478f093709bc563b) |
+| GBYLP5PCFMABRJ2S2GRBKODXNGWG5LXRQMA5EEKVPYM7UKHQH354GSCZ | abcb95dc01aba8198eff5f9cffbddaaecc8dd56de648be1ac6054eed149154b0 | [Link](https://stellar.expert/explorer/testnet/tx/abcb95dc01aba8198eff5f9cffbddaaecc8dd56de648be1ac6054eed149154b0) |
+| GDZMTW6ZFYKJJVNE6JQS77EQ2ODT5RGDMZFJZHRY6JPEFF76EIZIBCSX | ef2024ea2a28e22d63ee8d19ab2182f984aba34b458248cc24d51ad24cc6f915 | [Link](https://stellar.expert/explorer/testnet/tx/ef2024ea2a28e22d63ee8d19ab2182f984aba34b458248cc24d51ad24cc6f915) |
+| GC2PKWOVMOGUSQMICJKQGBGKIULGIAYFILVTKG7GJESVEC5XARRFYO4T | bd5773b8ac9400b9ceccbe97ba6bf6b5e806e6027ecc2d94a22c1d8bbcce6c74 | [Link](https://stellar.expert/explorer/testnet/tx/bd5773b8ac9400b9ceccbe97ba6bf6b5e806e6027ecc2d94a22c1d8bbcce6c74) |
+| GB3XF3UPK5KX57BFSAHW6JHOOMZWUKXN4UHOLZLYYPIQIHYBWADJTJOL | 35f3bcb2583acb3ecf936a38cf7d6a1509c709f70012f10e1c042a13431abe70 | [Link](https://stellar.expert/explorer/testnet/tx/35f3bcb2583acb3ecf936a38cf7d6a1509c709f70012f10e1c042a13431abe70) |
+| GD4OH234NGBHVOBTJYLSF4GMFLHLIDIBDDIQ52VVA52MCW373KVWBC6H | 7a54497585b907b468abb63d99626a2cd49dae846ce245b50c26dfa72dee0615 | [Link](https://stellar.expert/explorer/testnet/tx/7a54497585b907b468abb63d99626a2cd49dae846ce245b50c26dfa72dee0615) |
+| GBQHLPKVQZ3GUIRP2PENE77K3EVPANBISXVIJDWBM3F3THAKSZ5BOI3L | 93d9bf4c6e156cb6b37fc300b787ea01453d898ef78d918a888d542be5ffa309 | [Link](https://stellar.expert/explorer/testnet/tx/93d9bf4c6e156cb6b37fc300b787ea01453d898ef78d918a888d542be5ffa309) |
+| GB2XCONEEARUPPSC6ZYSBZ7NTNZD6S6SQK7JAIKLZDGIDJX2XVRP5WRV | 8c4ab6f407fe003be36ce8a5e2bf17aaf18d95bafe6264f0b2768b792fe7d4c5 | [Link](https://stellar.expert/explorer/testnet/tx/8c4ab6f407fe003be36ce8a5e2bf17aaf18d95bafe6264f0b2768b792fe7d4c5) |
+| GDSTVANPTVR6EGDYJRYPUTU6IVL3C3L5VF4OY42E2UIBTFWFAHTGVO7Y | 1318302e3a4dbaf5280d9328aa476c9ad23606a15bc354b2eace4e2bdd9040f9 | [Link](https://stellar.expert/explorer/testnet/tx/1318302e3a4dbaf5280d9328aa476c9ad23606a15bc354b2eace4e2bdd9040f9) |
+| GBQGNVB7QFQHETD7VUXKIIQUD33VDWO5KEYPYMS7PTQNYXFKQI2EOBUG | 5f323ae36ac6ef988ba8fc00b08c98c42130df0b7cf9963c1347f42d7c871719 | [Link](https://stellar.expert/explorer/testnet/tx/5f323ae36ac6ef988ba8fc00b08c98c42130df0b7cf9963c1347f42d7c871719) |
+| GCS5AMZDGAIZUQA3EDKMIBPSDBWWTBQ3IW77KVDHRALVUT64XZWSMHSW | d4bae80b873e8a4fac3fb7435c6127f597770110f27591f2e93ba169eb9b44cf | [Link](https://stellar.expert/explorer/testnet/tx/d4bae80b873e8a4fac3fb7435c6127f597770110f27591f2e93ba169eb9b44cf) |
+| GDBJ7HAG27DP2FMUED6AIQF2G2CUQD32CR53UONBQPHTVJZKZ5XBCZ6E | 9e4efe003eeeffa054cb3f354160d8ca6baaad7a6a897d481e381356f4b42972 | [Link](https://stellar.expert/explorer/testnet/tx/9e4efe003eeeffa054cb3f354160d8ca6baaad7a6a897d481e381356f4b42972) |
+| GDO576YDYADV2KT633LICQ3N6JDLG7NVWWEQZ4UBDS2IJ2CGL4IVYZPK | 9aff7be4b48e7db8ddaf149ce1f13335a63c62cb8fb2fcdc96959ca841f1f372 | [Link](https://stellar.expert/explorer/testnet/tx/9aff7be4b48e7db8ddaf149ce1f13335a63c62cb8fb2fcdc96959ca841f1f372) |
+| GCWTNOXMCIATCWQ27JLRKVT3N2OTAQEXVR6HDCAC5TIJVCEPJIYGXRZ4 | 28739e751e6e849e078abbb12339dd10cfa0980a67c976e7eeecc0d0c226936a | [Link](https://stellar.expert/explorer/testnet/tx/28739e751e6e849e078abbb12339dd10cfa0980a67c976e7eeecc0d0c226936a) |
+| GAFLHCSIYCIL45OBOVR3IRTX5FCSBYZ3W3T6IARDRYZ2XVRLTSF2AGTI | 7b915738231eb621b546cdce55a76437880604292aa55ba2724798dbafab1ea4 | [Link](https://stellar.expert/explorer/testnet/tx/7b915738231eb621b546cdce55a76437880604292aa55ba2724798dbafab1ea4) |
+| GDJDMYCB7MTQNOPJ3J3IRVJJBLZGT7H5OHT5GTILO5MZC3LNBJZ3OFCM | 3dc9ecf88a102f801c5ecde25475a17e5db3e52899843236b3d6b9e306df0033 | [Link](https://stellar.expert/explorer/testnet/tx/3dc9ecf88a102f801c5ecde25475a17e5db3e52899843236b3d6b9e306df0033) |
+| GASDD3UHMVHSU2KWDL4VMTOUWRRMFMFM7IAT4RD6QCG3P4C5OAQFDJTR | 079a49dc219598a476228e7a462ab2d6f820cc6ccda85f95d4a161950515d0c0 | [Link](https://stellar.expert/explorer/testnet/tx/079a49dc219598a476228e7a462ab2d6f820cc6ccda85f95d4a161950515d0c0) |
+| GAV4AMG53JIRBBPU2VPWG6UISY5ZZXKYWWB2YD4TZDHW2KD3VQNRQ3DI | 69e3ce7d2c960b91b8fd821bd9d322cfc5196d668c8f30c761dd56cff8a47066 | [Link](https://stellar.expert/explorer/testnet/tx/69e3ce7d2c960b91b8fd821bd9d322cfc5196d668c8f30c761dd56cff8a47066) |
+| GDBZZ7BUO7HQUNORXLFAE34TACBT4ZG7QB75BSSRESRXH22ECAZ5DF2C | 41e546f47f5e6938f4e032a389e2781a7bbe8ab4f223d92afd10450783202d40 | [Link](https://stellar.expert/explorer/testnet/tx/41e546f47f5e6938f4e032a389e2781a7bbe8ab4f223d92afd10450783202d40) |
+| GAOEHTOSDS6YO2G7S4AKKNFRVEY47633347JW5EJFQQP2T6XTNTGO2LF | 307fec14ccfe0d03a3fc5c4735a68a2ac3b9c169802a6266a156c7a9b2b3fba6 | [Link](https://stellar.expert/explorer/testnet/tx/307fec14ccfe0d03a3fc5c4735a68a2ac3b9c169802a6266a156c7a9b2b3fba6) |
+| GCN4VJGK6PNBVT7ZOEH7SLQYZNIGMXADQQIVGLNBKHADKA6P3PZPD25V | 02af3ada2952317d61a0146241e02a88bab75a17f937f380dca3d8d2a58add7d | [Link](https://stellar.expert/explorer/testnet/tx/02af3ada2952317d61a0146241e02a88bab75a17f937f380dca3d8d2a58add7d) |
+| GBLUVNNU2KTVQNIHX3X4EHDVG7WM2JROQWUTAZBHNTQESQMD7VJSWIDL | 0eea732636fa85b64e4e71e35c17d01d6ad1c32e5cba4af8eda29b8b86c1cd84 | [Link](https://stellar.expert/explorer/testnet/tx/0eea732636fa85b64e4e71e35c17d01d6ad1c32e5cba4af8eda29b8b86c1cd84) |
+| GBKUHLKD47MS77N5KUK2IRPFUNQGK27WYXXMBV2KTWQY262FFIUSSGLI | f3859777a0ef019aeb99af16221d500e33966a0af84f8c1331666b6e8d20fd26 | [Link](https://stellar.expert/explorer/testnet/tx/f3859777a0ef019aeb99af16221d500e33966a0af84f8c1331666b6e8d20fd26) |
+| GBQGL7L2CROICM3TQYIHPXB6O4KV7R4XWI3QOLUBEGSHRX2QURXZGV3F | d9a54a3f799c5a34543abb4e2a16216b412922286d50cfc257e22d9a84843d4d | [Link](https://stellar.expert/explorer/testnet/tx/d9a54a3f799c5a34543abb4e2a16216b412922286d50cfc257e22d9a84843d4d) |
+| GD4RUTMGGCCW3J5ZW5FHQ2ZBMZXPPZZSKJKHE56OMLJXQJYE53IKHGF2 | 67b7cf963b5bb727c60126c3292219986d2107036be7dddcd63b28d3459401c1 | [Link](https://stellar.expert/explorer/testnet/tx/67b7cf963b5bb727c60126c3292219986d2107036be7dddcd63b28d3459401c1) |
+| GB366JQUL2QBD2TN342S366QAPLGE5L7NFZ73FZI7VHMHQR6GMYVSQFX | 5ad54703905a5e3bef035efcb8a8b9c581e16532b63cd0804a4c2464a74c177d | [Link](https://stellar.expert/explorer/testnet/tx/5ad54703905a5e3bef035efcb8a8b9c581e16532b63cd0804a4c2464a74c177d) |
+| GAVEPUKZIERTS4UDDPX4KJRFKAOTR5K53XRG4RXLAHP3SPZA6X6UC37G | fbffb8e682b77156d1b5930a12ce64c5fcb535c5d906d0df8b9d0f9c4ae1aa6c | [Link](https://stellar.expert/explorer/testnet/tx/fbffb8e682b77156d1b5930a12ce64c5fcb535c5d906d0df8b9d0f9c4ae1aa6c) |
+| GCX5TXUHDAQBZXQGRGA2Z6MQGHMCLRTS7PYPHGVCGMXBYSFUZHZQBLUC | 4151660ca67fd00b22791efa3cb2ea316e61eb00551098fc221170f401ef0ca1 | [Link](https://stellar.expert/explorer/testnet/tx/4151660ca67fd00b22791efa3cb2ea316e61eb00551098fc221170f401ef0ca1) |
+| GDF6ZLGYKTAJ52UUE75X4IH3B5TGDYMVMOLFYZ7CX2HONHUREG2SQ6W6 | 25a49bfc57d126d8973799603caf6099e214f087b22f37b93733f2602656fde4 | [Link](https://stellar.expert/explorer/testnet/tx/25a49bfc57d126d8973799603caf6099e214f087b22f37b93733f2602656fde4) |
+| GBIMKRPX34TCSQ352LWRZBA3VNPBLUEPCRAHNW7P3XIIZRDECGVQCBYF | 702ebd8091be20d281e4f9786aba316c131acedcc46de243fcfbf3148a80b648 | [Link](https://stellar.expert/explorer/testnet/tx/702ebd8091be20d281e4f9786aba316c131acedcc46de243fcfbf3148a80b648) |
+| GARFV4B5FPAT3YZLH5DN7FGMBS2HYAO6VFBPQL4EKXHHRCRZNLU5YVIN | cbaefd87fe50621a31193c4aaec9aaa10c0c47d85a70ee721c9bf8047a81b5ed | [Link](https://stellar.expert/explorer/testnet/tx/cbaefd87fe50621a31193c4aaec9aaa10c0c47d85a70ee721c9bf8047a81b5ed) |
+| GBMLMMKSSUUUGPRXP2NQ3RP46GBUUAW5NIU4SCXX6FPSUAW7TCS7ANXG | 2322213c1b698fb4ca18a78e4f10bf8f00774fe3b1b468d1f27af19b1b7780ec | [Link](https://stellar.expert/explorer/testnet/tx/2322213c1b698fb4ca18a78e4f10bf8f00774fe3b1b468d1f27af19b1b7780ec) |
+| GCTP3VDL22G3RNUIILJBZAR4BQF7WGLSYFFDYGGNQIQMAJCRFUMSQ3WZ | f37938ffd8b2797655b05d2a4a1a2b641bf082a490b6df6a46a5ce0bb33a5d16 | [Link](https://stellar.expert/explorer/testnet/tx/f37938ffd8b2797655b05d2a4a1a2b641bf082a490b6df6a46a5ce0bb33a5d16) |
+| GBRVM5DKQ5CG7LZQNVSEEFN2PP3Z2BNQHQ7BQ2HJUY7SF4OZUGCHR3GJ | c288162d092db6abea84e0e90cdee6971d3f5464ffe0ede87f347a2bd2ae9b46 | [Link](https://stellar.expert/explorer/testnet/tx/c288162d092db6abea84e0e90cdee6971d3f5464ffe0ede87f347a2bd2ae9b46) |
+| GD5W2YSXIEMV5F57KCI5MNFPUJV4XS5EX4MSLXGQZBKVEK2G2GPZLNLW | 14ca788f0ce1364250c15b16e260a936ae139f3c46a510d6a1304236695e7835 | [Link](https://stellar.expert/explorer/testnet/tx/14ca788f0ce1364250c15b16e260a936ae139f3c46a510d6a1304236695e7835) |
+| GCI7Z4V4ABHC7TKJHY4YGNJBMC7JP5A2CJL64DXZHWASGQB5KTL34ODZ | 67ef0ae0960a664f6ba74b9c566134bed4d10518d4b986e79e30a4c4456aa7b6 | [Link](https://stellar.expert/explorer/testnet/tx/67ef0ae0960a664f6ba74b9c566134bed4d10518d4b986e79e30a4c4456aa7b6) |
+| GCJ26MA5DZDNFYFLFPUAHL6L6NYAOUT47X4ZM2VBGRVYXX5633B6WZJK | 8e88d84598e408d525e130963cdf317678507ed132818c235bd8bf058772dde2 | [Link](https://stellar.expert/explorer/testnet/tx/8e88d84598e408d525e130963cdf317678507ed132818c235bd8bf058772dde2) |
+| GD4UGV7Z3AEVKXNEPPDTOOZM3F36A2Y3TPI3RZKOVLDZAXBNNURYPR2M | 0b17b33b50b95f2d65ecd97944713980f1bc6a1725e2e3e9766c7fe9cd594b01 | [Link](https://stellar.expert/explorer/testnet/tx/0b17b33b50b95f2d65ecd97944713980f1bc6a1725e2e3e9766c7fe9cd594b01) |
+| GAQHNOPY5U2DEDXKZ6J4QPLOHNUEAAIDZDHU3TUH2WJXUU3BOTNCDUX3 | cacc35639280646b022bae921ca617b9d9472e804371fb314ec96cd15e448b9b | [Link](https://stellar.expert/explorer/testnet/tx/cacc35639280646b022bae921ca617b9d9472e804371fb314ec96cd15e448b9b) |
+| GCZMJ23BZVD66TFFYWRHKLQ3BVZCJ6NWVR2OB4GJIFJRJDMWL3JHY6E4 | c5929dfc0d6b61aad4de93bb5f131152acab2e8a6e6b212720ab0422dd1033c8 | [Link](https://stellar.expert/explorer/testnet/tx/c5929dfc0d6b61aad4de93bb5f131152acab2e8a6e6b212720ab0422dd1033c8) |
+| GDWBMMW3C275JUF4CAROOPFDZRZXL62QLEH3M2VF4CFUN32V7O342ST3 | 056e684a80dcb4cb8b8c54fb543971678fb3ad0ba0953d19f061605ca9c5eac2 | [Link](https://stellar.expert/explorer/testnet/tx/056e684a80dcb4cb8b8c54fb543971678fb3ad0ba0953d19f061605ca9c5eac2) |
+| GB27TBGEP7CEWRIAWMEQCEOKV6K4GY4UF2HFFKDU2HS464A4DM5YR5VD | a33802c2c75328f909a761092e01fc0830876b97b1ceeb2adac9e090202566e0 | [Link](https://stellar.expert/explorer/testnet/tx/a33802c2c75328f909a761092e01fc0830876b97b1ceeb2adac9e090202566e0) |
+| GCDYYAWS52IYCGLI6USQEINKFZTKRBTTHUPS676ZTA7TWAPNURDR62VA | 5f6732f1cbec235efb56b24c0cb05e6fa5545015d4999caf4fbd42beaa6f861b | [Link](https://stellar.expert/explorer/testnet/tx/5f6732f1cbec235efb56b24c0cb05e6fa5545015d4999caf4fbd42beaa6f861b) |
+| GCDQLUKO7CDDTBI6KDDAKAM74M7PSVPPNLX7CG6ZJXFLNRMEPERGYZ4Y | bbd7b6551ff60b0b8a181c91f886f07bd9d6f4acfc9d5bf1c185bc3a00929b1b | [Link](https://stellar.expert/explorer/testnet/tx/bbd7b6551ff60b0b8a181c91f886f07bd9d6f4acfc9d5bf1c185bc3a00929b1b) |
+| GCXZBIM2QJ2S656MELDCVZAJRRJL5MY4ARUNMG6ZOWS2MWEYA42FBWBX | 8130bee3fd34d005ca0d7e40b12501d9dd78bcdf30435ae42b4a69fad1dfa5c5 | [Link](https://stellar.expert/explorer/testnet/tx/8130bee3fd34d005ca0d7e40b12501d9dd78bcdf30435ae42b4a69fad1dfa5c5) |
+| GBYBNYD5DFDZ4DGVUO6F4CVCXFED52WZAOE4TC2TWSXSSOLCSWVBQWQM | 244cc82f4a5fbe8f410b52666a17bb5358ef7216d8d81823617761f12d8cfc8a | [Link](https://stellar.expert/explorer/testnet/tx/244cc82f4a5fbe8f410b52666a17bb5358ef7216d8d81823617761f12d8cfc8a) |
+| GDJMKCNYV7IBGAXY6KBTX4U2IDNFPPXFJI7VEO7MTRYZIDU46N7HBOH3 | c255ea21ea41531fdd9a79576e91dcc76938e228a34ea45b39826cdf44586476 | [Link](https://stellar.expert/explorer/testnet/tx/c255ea21ea41531fdd9a79576e91dcc76938e228a34ea45b39826cdf44586476) |
+| GBJEV7WPUY4AM2C34HID7KVJRI7D3XXIGLQVBLIC3JHCO74LOVRH76CK | 8b4bc99872f2f18c1a7d3c298aa61a2c834472b4c5153d356e195807e9767568 | [Link](https://stellar.expert/explorer/testnet/tx/8b4bc99872f2f18c1a7d3c298aa61a2c834472b4c5153d356e195807e9767568) |
+| GAYM5ALFLK7HYRS2UVZTVFQQHPLX7NNBKBIKYMTTMVNUGSSLWDICQCXC | 8966a796eeb814ddcd24837545e8137509e34c0cbebdb86ee9350077a616c0f8 | [Link](https://stellar.expert/explorer/testnet/tx/8966a796eeb814ddcd24837545e8137509e34c0cbebdb86ee9350077a616c0f8) |
 
 
 ---
@@ -386,11 +385,11 @@ Out of the 52 respondents, 8 provided specific written feedback detailing areas 
 Feedback regarding smart contracts and data management highlighted frustrations with migrating to new contract addresses after bug fixes, leading to heavy requests for in-place upgradable contracts. Users also reported that dormant testnet deals expire or disappear, requiring a new mechanism to recover or restore archived data. Finally, on the authentication side, users expressed fatigue from repeatedly typing wallet passwords and recommended integrating FaceID or phone passkeys to streamline the login and signing process.
 
 **Average Ratings (Scale 1-5):**
-- ⭐ **4.33** – Ease of Use
-- ⭐ **4.27** – Met Initial Expectations
-- ⭐ **4.15** – Overall Quality
-- ⭐ **4.08** – Performance & Speed
-- ⭐ **3.96** – Reliability *(Users experienced occasional errors/inconsistencies)*
+- â­ **4.33** â€“ Ease of Use
+- â­ **4.27** â€“ Met Initial Expectations
+- â­ **4.15** â€“ Overall Quality
+- â­ **4.08** â€“ Performance & Speed
+- â­ **3.96** â€“ Reliability *(Users experienced occasional errors/inconsistencies)*
 
 **Key Takeaways from Written Feedback (8 Respondents):**
 - **UI/UX & Transparency:** The 3D vault scene causes lag on lower-end devices; users requested a toggle to disable animations. They also asked for better transparency on exactly when deals will be liquidated based on current reserves, and a dedicated history tab to track old, paid-off, or liquidated Soroban transactions.
@@ -404,14 +403,14 @@ The following V2 improvements were directly built in response to the survey resu
 
 | # | User Feedback | Feature Shipped | Commit |
 |---|---------------|-----------------|--------|
-| 1 | *"Hard to determine when a deal will be liquidated based on current reserves"* | **Liquidation Risk Bar** — Dynamic color-coded margin ratio progress bar (green → amber → red) fetching live YLDS reserve data from the Soroban contract via `get_margin_ratio()` | [`8b72a0f`](https://github.com/PrinceDale99/Astra/commit/8b72a0f) |
-| 2 | *"3D vault scene causes lag on lower-end devices"* | **Lite Mode Toggle** — Header button to completely unmount the Three.js canvas and replace it with a lightweight CSS + SVG placeholder. Auto-activates on `prefers-reduced-motion` OS setting | [`bf0e92c`](https://github.com/PrinceDale99/Astra/commit/bf0e92c) |
-| 3 | *"Strong demand for a dedicated history tab for old/liquidated transactions"* | **Deal History Page** — Paginated `/history` page with filter tabs (All / Repaid / Liquidated), borrower address search, and persistent SQLite-backed `deal_history` table | [`f9325af`](https://github.com/PrinceDale99/Astra/commit/f9325af) |
-| 4 | *"Dashboard does not always update instantly"* | **WebSocket Real-Time Indexer** — Replaced 10s polling loop with a WebSocket broadcast server; frontend `useRealtimeDeals` hook merges live events without full re-fetch. Green `● LIVE` badge on analytics page | [`f6bc78e`](https://github.com/PrinceDale99/Astra/commit/f6bc78e) |
-| 5 | *"Frustration migrating to new contract addresses after bug fixes"* | **Upgradeable Contract** — `upgrade()` function using `env.deployer().update_current_contract_wasm()` replaces WASM bytecode in-place. Contract address `CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7` is **permanent** across all future upgrades | [`fc56e41`](https://github.com/PrinceDale99/Astra/commit/fc56e41) |
-| 6 | *"Dormant testnet deals expire or disappear"* | **State Archival + Restore Deal** — Switched `DealState` from `temporary()` to `persistent()` storage with 30-day TTL. Added `restore_deal()` contract function and amber `⚠ RESTORE DEAL` button on the frontend for archived deal recovery | [`981b31f`](https://github.com/PrinceDale99/Astra/commit/981b31f) |
-| 7 | *"Fatigue from repeatedly typing wallet passwords"* | **Secp256r1 Passkey Auth** — `register_passkey()` contract function stores WebAuthn P-256 credentials on-chain. Frontend `usePasskey` hook triggers OS-native FaceID / TouchID / Windows Hello for deal authorization instead of typed passwords | [`66b2c6e`](https://github.com/PrinceDale99/Astra/commit/66b2c6e) |
-| 8 | *"Concurrent deal creations under load"* | **Parallel Event Indexer** — Backend now processes batches of Soroban events concurrently via `Promise.all`, replacing sequential `forEach` iteration | [`d551195`](https://github.com/PrinceDale99/Astra/commit/d551195) |
+| 1 | *"Hard to determine when a deal will be liquidated based on current reserves"* | **Liquidation Risk Bar** â€” Dynamic color-coded margin ratio progress bar (green â†’ amber â†’ red) fetching live YLDS reserve data from the Soroban contract via `get_margin_ratio()` | [`8b72a0f`](https://github.com/PrinceDale99/Astra/commit/8b72a0f) |
+| 2 | *"3D vault scene causes lag on lower-end devices"* | **Lite Mode Toggle** â€” Header button to completely unmount the Three.js canvas and replace it with a lightweight CSS + SVG placeholder. Auto-activates on `prefers-reduced-motion` OS setting | [`bf0e92c`](https://github.com/PrinceDale99/Astra/commit/bf0e92c) |
+| 3 | *"Strong demand for a dedicated history tab for old/liquidated transactions"* | **Deal History Page** â€” Paginated `/history` page with filter tabs (All / Repaid / Liquidated), borrower address search, and persistent SQLite-backed `deal_history` table | [`f9325af`](https://github.com/PrinceDale99/Astra/commit/f9325af) |
+| 4 | *"Dashboard does not always update instantly"* | **WebSocket Real-Time Indexer** â€” Replaced 10s polling loop with a WebSocket broadcast server; frontend `useRealtimeDeals` hook merges live events without full re-fetch. Green `â— LIVE` badge on analytics page | [`f6bc78e`](https://github.com/PrinceDale99/Astra/commit/f6bc78e) |
+| 5 | *"Frustration migrating to new contract addresses after bug fixes"* | **Upgradeable Contract** â€” `upgrade()` function using `env.deployer().update_current_contract_wasm()` replaces WASM bytecode in-place. Contract address `CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2` is **permanent** across all future upgrades | [`fc56e41`](https://github.com/PrinceDale99/Astra/commit/fc56e41) |
+| 6 | *"Dormant testnet deals expire or disappear"* | **State Archival + Restore Deal** â€” Switched `DealState` from `temporary()` to `persistent()` storage with 30-day TTL. Added `restore_deal()` contract function and amber `âš  RESTORE DEAL` button on the frontend for archived deal recovery | [`981b31f`](https://github.com/PrinceDale99/Astra/commit/981b31f) |
+| 7 | *"Fatigue from repeatedly typing wallet passwords"* | **Secp256r1 Passkey Auth** â€” `register_passkey()` contract function stores WebAuthn P-256 credentials on-chain. Frontend `usePasskey` hook triggers OS-native FaceID / TouchID / Windows Hello for deal authorization instead of typed passwords | [`66b2c6e`](https://github.com/PrinceDale99/Astra/commit/66b2c6e) |
+| 8 | *"Concurrent deal creations under load"* | **Parallel Event Indexer** â€” Backend now processes batches of Soroban events concurrently via `Promise.all`, replacing sequential `forEach` iteration | [`d551195`](https://github.com/PrinceDale99/Astra/commit/d551195) |
 
 ---
 
@@ -596,3 +595,4 @@ SOFTWARE.
 *"Unlock institutional liquidity without compromising portfolio privacy."*
 
 </div>
+

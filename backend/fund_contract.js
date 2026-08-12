@@ -1,77 +1,117 @@
-const { Keypair, rpc, TransactionBuilder, Networks, Account, Asset, Contract, nativeToScVal, xdr } = require('@stellar/stellar-sdk');
+const { Keypair, Horizon, rpc, TransactionBuilder, Networks, Account, nativeToScVal, Contract, xdr, Asset } = require('@stellar/stellar-sdk');
 
-const CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
-const NATIVE_SAC = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+const CONTRACT_ID = 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2';
+const ISSUER_SECRET = 'SBXCMEHHQOMHRJJCNMIAWWY4SC6K5NYI64Z274FH6LJFVFPXLAZL4L4C';
+const YLDS_SAC_ID = 'CBT2FAHTV57M4LFZREZNOU7XYQQZWKX3GKCF3RGVX7DJVYNFOVJ3TFVT';
 
-async function fundContract() {
-    const server = new rpc.Server('https://soroban-testnet.stellar.org');
-    let totalFunded = 0;
+const HORIZON_URL = 'https://horizon-testnet.stellar.org';
+const SOROBAN_URL = 'https://soroban-testnet.stellar.org';
+const NETWORK = Networks.TESTNET;
 
-    console.log(`Funding contract ${CONTRACT_ID} with ~320k XLM...`);
-    const sacContract = new Contract(NATIVE_SAC);
+const YLDS_AMOUNT = BigInt(300_000) * BigInt(10_000_000); 
 
-    for (let i = 0; i < 32; i++) {
-        const kp = Keypair.random();
+async function fundXLM() {
+    const horizon = new Horizon.Server(HORIZON_URL);
+    
+    // Create a temporary aggregator wallet
+    const aggKp = Keypair.random();
+    console.log("Funding aggregator wallet:", aggKp.publicKey());
+    await fetch(`https://friendbot.stellar.org?addr=${aggKp.publicKey()}`);
+    
+    console.log("Generating 2M XLM via Friendbot (takes a minute)...");
+    
+    // We need 2,000,000 XLM, Friendbot gives 10k per call, so 200 accounts needed
+    const batches = 20; 
+    const perBatch = 10;
+    
+    for (let i = 0; i < batches; i++) {
+        process.stdout.write(`Batch ${i+1}/${batches}: `);
+        const kps = Array.from({length: perBatch}, () => Keypair.random());
         
-        // Fund with friendbot
-        console.log(`[${i+1}/32] Funding temp wallet ${kp.publicKey()}...`);
-        const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${kp.publicKey()}`);
-        if (!fbRes.ok) {
-            console.error('Friendbot failed:', await fbRes.text());
-            continue;
-        }
-
-        // We have 10,000 XLM. Transfer 9,990 to the contract.
-        const accountData = await (await fetch(`https://horizon-testnet.stellar.org/accounts/${kp.publicKey()}`)).json();
-        const sourceAccount = new Account(kp.publicKey(), accountData.sequence);
-
-        // 9990 XLM in stroops
-        const amountScVal = nativeToScVal(BigInt(9990_0000000), { type: 'i128' });
-        const fromScVal = nativeToScVal(kp.publicKey(), { type: 'address' });
-        const toScVal = nativeToScVal(CONTRACT_ID, { type: 'address' });
-
-        const callOp = sacContract.call('transfer', fromScVal, toScVal, amountScVal);
-
-        let tx = new TransactionBuilder(
-            sourceAccount, 
-            { fee: '100000', networkPassphrase: Networks.TESTNET }
-        )
-        .addOperation(callOp)
-        .setTimeout(30)
-        .build();
-
-        console.log(`[${i+1}/32] Simulating transfer...`);
-        const sim = await server.simulateTransaction(tx);
-        if (rpc.Api.isSimulationError(sim)) {
-            console.error(`Simulation failed for ${i+1}: ${sim.error}`);
-            continue;
-        }
-
-        tx = rpc.assembleTransaction(tx, sim).build();
-        tx.sign(kp);
-
-        console.log(`[${i+1}/32] Submitting to network...`);
-        const sendRes = await server.sendTransaction(tx);
+        // Fund them all
+        await Promise.all(kps.map(kp => fetch(`https://friendbot.stellar.org?addr=${kp.publicKey()}`).catch(() => {})));
         
-        if (sendRes.status === 'ERROR') {
-            console.error('Transfer failed', sendRes);
-        } else {
-            // Poll for status
-            let hash = sendRes.hash;
-            let txStatus = await server.getTransaction(hash);
-            while (txStatus.status === 'PENDING') {
-                await new Promise(r => setTimeout(r, 2000));
-                txStatus = await server.getTransaction(hash);
-            }
-            if (txStatus.status === 'SUCCESS') {
-                totalFunded += 9990;
-                console.log(`[${i+1}/32] Success! Total funded: ${totalFunded} XLM`);
-            } else {
-                console.error(`[${i+1}/32] Tx failed on chain`);
-            }
+        let aggAcc = await horizon.loadAccount(aggKp.publicKey());
+        let tx = new TransactionBuilder(new Account(aggKp.publicKey(), aggAcc.sequence), { fee: '1000000', networkPassphrase: NETWORK });
+        
+        // Merge them all into aggregator
+        for (let kp of kps) {
+            tx.addOperation(
+                require('@stellar/stellar-sdk').Operation.accountMerge({
+                    destination: aggKp.publicKey(),
+                    source: kp.publicKey()
+                })
+            );
         }
+        
+        let builtTx = tx.setTimeout(60).build();
+        builtTx.sign(aggKp);
+        for (let kp of kps) builtTx.sign(kp);
+        
+        await horizon.submitTransaction(builtTx).catch(e => console.error("Batch failed", e.response?.data?.extras));
+        process.stdout.write("Merged!\n");
     }
-    console.log(`Done! Contract successfully funded with ${totalFunded} XLM.`);
+    
+    let finalAgg = await horizon.loadAccount(aggKp.publicKey());
+    let balance = finalAgg.balances.find(b => b.asset_type === 'native').balance;
+    console.log("Aggregator final balance:", balance);
+    
+    // Send 2M to contract
+    const toSend = (Number(balance) - 100).toFixed(7);
+    console.log(`Sending ${toSend} XLM to contract...`);
+    let sendTx = new TransactionBuilder(new Account(aggKp.publicKey(), finalAgg.sequence), { fee: '100000', networkPassphrase: NETWORK })
+        .addOperation(require('@stellar/stellar-sdk').Operation.payment({
+            destination: CONTRACT_ID,
+            asset: Asset.native(),
+            amount: toSend
+        }))
+        .setTimeout(60).build();
+    sendTx.sign(aggKp);
+    await horizon.submitTransaction(sendTx);
+    console.log("XLM sent to contract!");
 }
 
-fundContract();
+async function fundYLDS() {
+    const horizon = new Horizon.Server(HORIZON_URL);
+    const soroban = new rpc.Server(SOROBAN_URL);
+    const issuer = Keypair.fromSecret(ISSUER_SECRET);
+    const issuerAcct = await horizon.loadAccount(issuer.publicKey());
+    
+    const sacContract = new Contract(YLDS_SAC_ID);
+    
+    console.log("Minting 300,000 YLDS to contract...");
+    let mintTx = new TransactionBuilder(new Account(issuer.publicKey(), issuerAcct.sequence), {
+        fee: '100000',
+        networkPassphrase: NETWORK,
+    })
+    .addOperation(sacContract.call('mint', nativeToScVal(CONTRACT_ID, { type: 'address' }), nativeToScVal(YLDS_AMOUNT, { type: 'i128' })))
+    .setTimeout(60)
+    .build();
+
+    const simMint = await soroban.simulateTransaction(mintTx);
+    if (rpc.Api.isSimulationError(simMint)) throw new Error('Mint simulation failed: ' + simMint.error);
+    
+    mintTx = rpc.assembleTransaction(mintTx, simMint).build();
+    mintTx.sign(issuer);
+
+    const mintRes = await soroban.sendTransaction(mintTx);
+    
+    let hash = mintRes.hash;
+    let txStatus = await soroban.getTransaction(hash).catch(() => ({ status: 'NOT_FOUND' }));
+    let attemptsTx = 0;
+    while (txStatus.status === 'NOT_FOUND' && attemptsTx < 15) {
+        await new Promise(r => setTimeout(r, 2000));
+        txStatus = await soroban.getTransaction(hash).catch(() => ({ status: 'NOT_FOUND' }));
+        attemptsTx++;
+    }
+    
+    if (txStatus.status === 'SUCCESS') console.log('300,000 YLDS minted successfully!');
+    else console.error('Minting YLDS failed!');
+}
+
+async function main() {
+    await fundYLDS().catch(console.error);
+    await fundXLM().catch(console.error);
+}
+
+main();

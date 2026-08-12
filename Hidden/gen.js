@@ -1,7 +1,7 @@
 const { Keypair, rpc, Contract, TransactionBuilder, Networks, xdr, nativeToScVal, Account, Operation, Asset, Horizon } = require('@stellar/stellar-sdk');
 const fs = require('fs');
 
-const CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
+const CONTRACT_ID = 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2';
 const MD_FILE = 'interactions.md';
 
 const YLDS_ASSET = new Asset('YLDS', 'GDWVUZ6W6WTJUTCM23LXZYU63D7D5PKHXZIQ3BMTNYN5KLFDH7NIJOZC');

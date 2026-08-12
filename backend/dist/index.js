@@ -153,7 +153,7 @@ app.get('/api/v1/analytics', async (req, res) => {
  */
 app.get('/api/v1/config', (req, res) => {
     const config = {
-        astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7',
+        astraRepoContractId: process.env.ASTRA_REPO_CONTRACT_ID || 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2',
         nativeXlmSac: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
         yldsSacId: process.env.YLDS_SAC_ID || '',
         yldsIssuer: process.env.YLDS_ISSUER || '',

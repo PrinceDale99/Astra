@@ -1,4 +1,4 @@
-// @feature UpgradeableContract: upgrade() calls env.deployer().update_current_contract_wasm() - address CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7 is permanent
+// @feature UpgradeableContract: upgrade() calls env.deployer().update_current_contract_wasm() - address CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2 is permanent
 #![no_std]
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, BytesN, Env, Symbol, Vec,
@@ -57,9 +57,9 @@ pub struct AstraRepo;
 #[contractimpl]
 impl AstraRepo {
     /// One-time initializer.
-    /// `admin`          — privileged address allowed to update reserve parameters.
-    /// `native_xlm_sac` — Stellar Asset Contract address for the native XLM SAC.
-    /// `ylds_sac`       — Stellar Asset Contract address for the YLDS token SAC.
+    /// `admin`          - privileged address allowed to update reserve parameters.
+    /// `native_xlm_sac` - Stellar Asset Contract address for the native XLM SAC.
+    /// `ylds_sac`       - Stellar Asset Contract address for the YLDS token SAC.
     pub fn initialize(
         env: Env,
         admin: Address,
@@ -101,7 +101,7 @@ impl AstraRepo {
     ) -> Result<u64, Error> {
         borrower.require_auth();
 
-        // Validate ZK Proof — in production this calls BN254 pairing host functions
+        // Validate ZK Proof - in production this calls BN254 pairing host functions
         if !verify_zk_proof(&env, &proof, &public_signals) {
             return Err(Error::InvalidProof);
         }
@@ -128,10 +128,10 @@ impl AstraRepo {
             return Err(Error::InsufficientYldsReserves);
         }
 
-        // Step 1 — Pull XLM from borrower into the contract as collateral
+        // Step 1 - Pull XLM from borrower into the contract as collateral
         xlm_client.transfer(&borrower, &contract_addr, &xlm_deposit_amount);
 
-        // Step 2 — Issue equivalent YLDS from contract reserves to borrower (1:1 ratio)
+        // Step 2 - Issue equivalent YLDS from contract reserves to borrower (1:1 ratio)
         let issued_ylds = xlm_deposit_amount;
         ylds_client.transfer(&contract_addr, &borrower, &issued_ylds);
 
@@ -159,7 +159,7 @@ impl AstraRepo {
             is_liquidated: false,
         };
 
-        // Persistent storage — deals expire after ~30 days
+        // Persistent storage - deals expire after ~30 days
         let deal_key = DataKey::Deal(deal_counter);
         env.storage().persistent().set(&deal_key, &deal_state);
         env.storage()
@@ -220,10 +220,10 @@ impl AstraRepo {
 
         let contract_addr = env.current_contract_address();
 
-        // Step 1 — Pull YLDS back from borrower into the contract (replenishes reserve)
+        // Step 1 - Pull YLDS back from borrower into the contract (replenishes reserve)
         ylds_client.transfer(&borrower, &contract_addr, &deal_state.issued_ylds);
 
-        // Step 2 — Return XLM to borrower, deducting the 1% interest fee
+        // Step 2 - Return XLM to borrower, deducting the 1% interest fee
         let xlm_to_return = deal_state.deposited_xlm - deal_state.interest_xlm;
         xlm_client.transfer(&contract_addr, &borrower, &xlm_to_return);
 
@@ -364,6 +364,13 @@ impl AstraRepo {
         }
         Ok(())
     }
+    pub fn fix_sacs(env: Env, native_xlm_sac: Address, ylds_sac: Address) -> Result<(), Error> {
+        let admin: Address = env.storage().persistent().get(&DataKey::Admin).ok_or(Error::NotInitialized)?;
+        admin.require_auth();
+        env.storage().persistent().set(&DataKey::NativeXlmSac, &native_xlm_sac);
+        env.storage().persistent().set(&DataKey::YldsSac, &ylds_sac);
+        Ok(())
+    }
 }
 
 /// ZK proof verification stub.
@@ -376,3 +383,4 @@ fn verify_zk_proof(_env: &Env, _proof: &Bytes, _public_signals: &Vec<i128>) -> b
 
 #[cfg(test)]
 mod test;
+

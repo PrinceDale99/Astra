@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * setup_ylds.js
  *
  * One-time setup script that:
@@ -28,7 +28,7 @@ const {
   Contract,
 } = require('@stellar/stellar-sdk');
 
-const REPO_CONTRACT_ID = 'CB5VLN6TSOLKVLJ2XENVGMAHRVZLAAOGVBFFAJRHOZ7X5XD4WAWLL2F7';
+const REPO_CONTRACT_ID = 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2';
 const HORIZON_URL = 'https://horizon-testnet.stellar.org';
 const SOROBAN_URL = 'https://soroban-testnet.stellar.org';
 const NETWORK = Networks.TESTNET;
@@ -60,7 +60,7 @@ async function main() {
   const yldsSacId = ylds.contractId(NETWORK);
 
   console.log('\n+------------------------------------------------------+');
-  console.log('¦  Astra YLDS Setup Script                             ¦');
+  console.log('ï¿½  Astra YLDS Setup Script                             ï¿½');
   console.log('+------------------------------------------------------+');
   console.log(`\nIssuer Public:      ${issuer.publicKey()}`);
   console.log(`Issuer Secret:      ${issuer.secret()} ? SAVE THIS`);
@@ -141,7 +141,7 @@ async function main() {
 
   // --- Summary --------------------------------------------------------------
   console.log('\n+------------------------------------------------------+');
-  console.log('¦  Setup Complete! Update your config with:            ¦');
+  console.log('ï¿½  Setup Complete! Update your config with:            ï¿½');
   console.log('+------------------------------------------------------+');
   console.log(`\nYLDS_SAC_ID  = "${yldsSacId}"`);
   console.log(`ISSUER_KEY   = "${issuer.publicKey()}"`);
