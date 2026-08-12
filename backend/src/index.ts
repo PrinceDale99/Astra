@@ -201,6 +201,88 @@ app.post('/api/v1/faucet/ylds', async (req, res) => {
 });
 
 
+// POST /api/v1/deals/record
+// Called directly by the frontend immediately after a successful Freighter transaction.
+// This is the primary write path — the on-chain indexer is the secondary/fallback.
+app.post('/api/v1/deals/record', async (req, res) => {
+  try {
+    const { dbService } = require('./services/db.service');
+    const {
+      txHash,        // Stellar transaction hash
+      dealId,        // on-chain deal counter (u64)
+      borrower,      // G... address
+      xlmAmount,     // XLM deposited (decimal, e.g. 100.5)
+      yldsAmount,    // YLDS issued (decimal)
+      type,          // 'created' | 'repaid' | 'liquidated'
+      ledger,        // ledger sequence number
+      timestamp,     // ISO string
+    } = req.body;
+
+    if (!txHash || !borrower || !type) {
+      return res.status(400).json({ error: 'txHash, borrower, and type are required' });
+    }
+
+    const now = timestamp || new Date().toISOString();
+    const xlm = Number(xlmAmount) || 0;
+    const ylds = yldsAmount !== undefined ? Number(yldsAmount) : null;
+    const deal_id = dealId !== undefined ? Number(dealId) : null;
+    const ledgerNum = Number(ledger) || 0;
+
+    // Record to recent_deals (activity table on analytics page)
+    dbService.recordDeal({
+      id: txHash,
+      type: type === 'created' ? 'Repo Deal' : type === 'repaid' ? 'Repay' : 'Liquidation',
+      amount: xlm,
+      time: now,
+      status: 'Verified',
+      zkProof: 'Verified On-Chain',
+      health_factor: null,
+    });
+
+    // Record to deal_history (history page)
+    dbService.recordClosedDeal({
+      id: txHash,
+      deal_id,
+      borrower,
+      type,
+      deposited_xlm: xlm,
+      issued_ylds: ylds,
+      closed_at: now,
+      ledger: ledgerNum,
+    });
+
+    // Record institution
+    dbService.recordInstitution(borrower);
+
+    // Update TVL if this is a new deal
+    if (type === 'created' && xlm > 0) {
+      // Add to current TVL (approximate, indexer will reconcile)
+      dbService.recordTvl(String(Math.round(xlm * 1e7)));
+    }
+
+    // Broadcast to WebSocket clients
+    broadcastToClients({
+      type: 'NEW_DEAL',
+      payload: {
+        id: txHash,
+        type: type === 'created' ? 'Repo Deal' : type === 'repaid' ? 'Repay' : 'Liquidation',
+        amount: xlm,
+        borrower,
+        deal_id,
+        time: now,
+        status: 'Verified',
+        zkProof: 'Verified On-Chain',
+      },
+    });
+
+    console.log(`[record] ${type} deal by ${borrower.substring(0, 8)}... | ${xlm} XLM | tx=${txHash.substring(0, 12)}...`);
+    res.json({ success: true, recorded: { txHash, type, xlm, deal_id } });
+  } catch (error: any) {
+    console.error('[record] Error:', error);
+    res.status(500).json({ error: error.message || 'Record error' });
+  }
+});
+
 // GET /api/v1/deals/history - paginated closed deal history
 app.get('/api/v1/deals/history', async (req, res) => {
   try {

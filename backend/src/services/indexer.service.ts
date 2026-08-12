@@ -34,11 +34,15 @@ export class IndexerService {
 
     try {
       const latest = await this.server.getLatestLedger();
-      // Go back ~13 hours (approx 10,000 ledgers at 5s/ledger) to catch recent testnet activity
-      this.lastLedger = Math.max(0, latest.sequence - 10000);
-      console.log(`Starting indexer from ledger ${this.lastLedger}`);
+      const seq = latest.sequence;
+      // oldestLedger is the archive boundary - we CANNOT go before this or we get silent 0 results
+      const oldest = (latest as any).oldestLedger ?? Math.max(1, seq - 100000);
+      // Start from 6 hours ago (~4320 ledgers) but never before the archive window
+      const sixHoursAgo = seq - 4320;
+      this.lastLedger = Math.max(oldest + 1, sixHoursAgo);
+      console.log(`Starting indexer from ledger ${this.lastLedger} (latest=${seq}, oldest=${oldest})`);
     } catch (e) {
-      console.warn('Could not fetch latest ledger, defaulting to recent.', e);
+      console.warn('Could not fetch latest ledger, defaulting to 0.', e);
       this.lastLedger = 0;
     }
 
@@ -46,7 +50,9 @@ export class IndexerService {
       try {
         if (this.lastLedger === 0) {
           const latest = await this.server.getLatestLedger();
-          this.lastLedger = latest.sequence;
+          const oldest = (latest as any).oldestLedger ?? Math.max(1, latest.sequence - 100000);
+          this.lastLedger = Math.max(oldest + 1, latest.sequence - 4320);
+          console.log(`Indexer initialized at ledger ${this.lastLedger}`);
           return;
         }
 

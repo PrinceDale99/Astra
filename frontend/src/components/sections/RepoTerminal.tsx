@@ -205,6 +205,35 @@ export default function RepoTerminal() {
     }
   };
 
+  // ─── Record deal to backend immediately after Freighter tx ──────────────
+  // Primary write path: the on-chain indexer is the secondary fallback.
+  const recordDealToBackend = async (params: {
+    txHash: string;
+    type: 'created' | 'repaid' | 'liquidated';
+    xlmAmount?: number;
+    yldsAmount?: number;
+    dealId?: number | null;
+  }) => {
+    try {
+      await fetch(`${BACKEND_URL}/api/v1/deals/record`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          txHash: params.txHash,
+          type: params.type,
+          borrower: publicKey,
+          xlmAmount: params.xlmAmount ?? collateralAmount,
+          yldsAmount: params.yldsAmount,
+          dealId: params.dealId ?? activeDealId,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+    } catch (e) {
+      // Non-fatal: indexer will catch it next poll
+      console.warn('[recordDealToBackend] failed (non-fatal):', e);
+    }
+  };
+
   const handleExecuteRepo = async () => {
     if (!publicKey || !zkProofData) return;
     setTxLoading(true);
@@ -217,8 +246,8 @@ export default function RepoTerminal() {
         publicSignals: zkProofData.publicSignals,
       });
       setTxHash(hash);
-      // Extract deal ID from the contract return value (1-indexed counter)
-      // The modal will display the hash; we store deal ID for repayment
+      // Record immediately to backend so history/analytics update right away
+      await recordDealToBackend({ txHash: hash, type: 'created', xlmAmount: collateralAmount });
     } catch (err: any) {
       console.error('[handleExecuteRepo] FAILED:', err);
       setErrorMessage(err.message || 'Soroban transaction failed.');
@@ -234,6 +263,8 @@ export default function RepoTerminal() {
     try {
       const hash = await submitRepayDeal({ borrower: publicKey, dealId: activeDealId });
       setRepayHash(hash);
+      // Record repayment to backend immediately
+      await recordDealToBackend({ txHash: hash, type: 'repaid' });
     } catch (err: any) {
       console.error('[handleRepay] FAILED:', err);
       setErrorMessage(err.message || 'Repayment transaction failed.');
