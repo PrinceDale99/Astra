@@ -60,54 +60,24 @@ async function fundXLM() {
     const toSend = (Number(balance) - 100).toFixed(7);
     console.log(`Sending ${toSend} XLM to contract...`);
     let sendTx = new TransactionBuilder(new Account(aggKp.publicKey(), finalAgg.sequence), { fee: '100000', networkPassphrase: NETWORK })
-        .addOperation(require('@stellar/stellar-sdk').Operation.payment({
-            destination: CONTRACT_ID,
-            asset: Asset.native(),
-            amount: toSend
-        }))
+        .addOperation(new Contract('CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC').call(
+            'transfer',
+            nativeToScVal(aggKp.publicKey(), { type: 'address' }),
+            nativeToScVal(CONTRACT_ID, { type: 'address' }),
+            nativeToScVal(BigInt(Math.floor(Number(toSend) * 10000000)), { type: 'i128' })
+        ))
         .setTimeout(60).build();
+    let sim = await new rpc.Server(SOROBAN_URL).simulateTransaction(sendTx);
+    sendTx = rpc.assembleTransaction(sendTx, sim).build();
     sendTx.sign(aggKp);
-    await horizon.submitTransaction(sendTx);
-    console.log("XLM sent to contract!");
+    await new rpc.Server(SOROBAN_URL).sendTransaction(sendTx);
+    console.log("XLM sent to contract via SAC!");
 }
 
 async function fundYLDS() {
-    const horizon = new Horizon.Server(HORIZON_URL);
-    const soroban = new rpc.Server(SOROBAN_URL);
-    const issuer = Keypair.fromSecret(ISSUER_SECRET);
-    const issuerAcct = await horizon.loadAccount(issuer.publicKey());
-    
-    const sacContract = new Contract(YLDS_SAC_ID);
-    
-    console.log("Minting 300,000 YLDS to contract...");
-    let mintTx = new TransactionBuilder(new Account(issuer.publicKey(), issuerAcct.sequence), {
-        fee: '100000',
-        networkPassphrase: NETWORK,
-    })
-    .addOperation(sacContract.call('mint', nativeToScVal(CONTRACT_ID, { type: 'address' }), nativeToScVal(YLDS_AMOUNT, { type: 'i128' })))
-    .setTimeout(60)
-    .build();
-
-    const simMint = await soroban.simulateTransaction(mintTx);
-    if (rpc.Api.isSimulationError(simMint)) throw new Error('Mint simulation failed: ' + simMint.error);
-    
-    mintTx = rpc.assembleTransaction(mintTx, simMint).build();
-    mintTx.sign(issuer);
-
-    const mintRes = await soroban.sendTransaction(mintTx);
-    
-    let hash = mintRes.hash;
-    let txStatus = await soroban.getTransaction(hash).catch(() => ({ status: 'NOT_FOUND' }));
-    let attemptsTx = 0;
-    while (txStatus.status === 'NOT_FOUND' && attemptsTx < 15) {
-        await new Promise(r => setTimeout(r, 2000));
-        txStatus = await soroban.getTransaction(hash).catch(() => ({ status: 'NOT_FOUND' }));
-        attemptsTx++;
-    }
-    
-    if (txStatus.status === 'SUCCESS') console.log('300,000 YLDS minted successfully!');
-    else console.error('Minting YLDS failed!');
+    console.log("Skipping YLDS, already done.");
 }
+
 
 async function main() {
     await fundYLDS().catch(console.error);
