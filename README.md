@@ -455,7 +455,10 @@ The following V2 improvements were directly built in response to the survey resu
 ### Smart Contract
 ```bash
 cd contracts/astra_repo
-stellar contract build
+# Build the contract target WASM (Stellar Protocol 27 compatible)
+cargo build --target wasm32v1-none --release
+
+# Run all unit tests, including test suites for get_margin_ratio, fix_sacs, restore_deal, register_passkey, and migrate_v2
 cargo test
 ```
 
