@@ -141,6 +141,14 @@ export default function VaultScene({ isVerified, scrollProgress }: VaultScenePro
   const prefersReduced = useReducedMotion();
 
   useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const support = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+      if (!support) setHasError(true);
+    } catch {
+      setHasError(true);
+    }
+
     const handleContextLoss = () => setHasError(true);
     window.addEventListener('webglcontextlost', handleContextLoss);
     return () => window.removeEventListener('webglcontextlost', handleContextLoss);
