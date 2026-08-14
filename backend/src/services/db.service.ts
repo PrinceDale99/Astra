@@ -59,6 +59,11 @@ export class DbService {
           ledger INTEGER NOT NULL
         )
       `);
+
+      // Performance optimization indexes for paginated lookups
+      this.db.run(`CREATE INDEX IF NOT EXISTS idx_deal_history_borrower_type ON deal_history(borrower, type)`);
+      this.db.run(`CREATE INDEX IF NOT EXISTS idx_deal_history_closed_at ON deal_history(closed_at DESC)`);
+      this.db.run(`CREATE INDEX IF NOT EXISTS idx_recent_deals_time ON recent_deals(time DESC)`);
     });
   }
 
