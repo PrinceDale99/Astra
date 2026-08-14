@@ -135,3 +135,27 @@ fn test_insufficient_ylds_reserves() {
     assert!(res.is_err());
     assert_eq!(res.err().unwrap().unwrap(), Error::InsufficientYldsReserves);
 }
+
+#[test]
+fn test_get_margin_ratio() {
+    let (env, client, _admin, native_xlm_sac, ylds_sac) = setup_test();
+    let borrower = Address::generate(&env);
+
+    let xlm_stellar = token::StellarAssetClient::new(&env, &native_xlm_sac);
+    let deposit: i128 = 10_000_0_000_000;
+    xlm_stellar.mint(&borrower, &deposit);
+
+    env.ledger().set_timestamp(1_000);
+    let deal_id = client.create_repo_deal(
+        &borrower,
+        &deposit,
+        &Bytes::new(&env),
+        &Vec::new(&env),
+    );
+
+    // Initial reserve is 2,990,000 YLDS, issued is 10,000 YLDS.
+    // (2,990,000 * 100) / 10,000 = 29900%
+    let ratio = client.get_margin_ratio(&deal_id);
+    assert_eq!(ratio, 29900);
+}
+
