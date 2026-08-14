@@ -180,4 +180,30 @@ fn test_fix_sacs() {
     assert!(res.is_err());
 }
 
+#[test]
+fn test_restore_deal() {
+    let (env, client, _admin, native_xlm_sac, _ylds_sac) = setup_test();
+    let borrower = Address::generate(&env);
+
+    let xlm_stellar = token::StellarAssetClient::new(&env, &native_xlm_sac);
+    let deposit: i128 = 10_000_0_000_000;
+    xlm_stellar.mint(&borrower, &deposit);
+
+    let deal_id = client.create_repo_deal(
+        &borrower,
+        &deposit,
+        &Bytes::new(&env),
+        &Vec::new(&env),
+    );
+
+    // Call restore_deal which should succeed
+    client.restore_deal(&deal_id);
+    
+    // Call it on a non-existent deal to verify it returns DealNotFound error
+    let res = client.try_restore_deal(&999);
+    assert!(res.is_err());
+    assert_eq!(res.err().unwrap().unwrap(), Error::DealNotFound);
+}
+
+
 
