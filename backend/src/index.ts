@@ -29,6 +29,23 @@ const zkProofRequestSchema = z.object({
   currentTimestamp: z.number().positive(),
 });
 
+const recordDealSchema = z.object({
+  txHash: z.string().length(64),
+  dealId: z.any().optional(),
+  borrower: z.string().length(56).startsWith('G'),
+  xlmAmount: z.number().nonnegative(),
+  yldsAmount: z.any().optional(),
+  type: z.enum(['created', 'repaid', 'liquidated']),
+  ledger: z.any().optional(),
+  timestamp: z.string().optional(),
+});
+
+const registerPasskeySchema = z.object({
+  walletAddress: z.string().length(56).startsWith('G'),
+  credentialId: z.string().min(1),
+  publicKey: z.string().min(1),
+});
+
 // Routes
 app.get('/healthz', (req, res) => {
   const memoryUsage = process.memoryUsage();
@@ -203,9 +220,10 @@ app.post('/api/v1/faucet/ylds', async (req, res) => {
 
 // POST /api/v1/deals/record
 // Called directly by the frontend immediately after a successful Freighter transaction.
-// This is the primary write path — the on-chain indexer is the secondary/fallback.
+// This is the primary write path - the on-chain indexer is the secondary/fallback.
 app.post('/api/v1/deals/record', async (req, res) => {
   try {
+    const validated = recordDealSchema.parse(req.body);
     const { dbService } = require('./services/db.service');
     const {
       txHash,        // Stellar transaction hash
@@ -216,11 +234,7 @@ app.post('/api/v1/deals/record', async (req, res) => {
       type,          // 'created' | 'repaid' | 'liquidated'
       ledger,        // ledger sequence number
       timestamp,     // ISO string
-    } = req.body;
-
-    if (!txHash || !borrower || !type) {
-      return res.status(400).json({ error: 'txHash, borrower, and type are required' });
-    }
+    } = validated;
 
     const now = timestamp || new Date().toISOString();
     const xlm = Number(xlmAmount) || 0;
@@ -278,6 +292,9 @@ app.post('/api/v1/deals/record', async (req, res) => {
     console.log(`[record] ${type} deal by ${borrower.substring(0, 8)}... | ${xlm} XLM | tx=${txHash.substring(0, 12)}...`);
     res.json({ success: true, recorded: { txHash, type, xlm, deal_id } });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.issues });
+    }
     console.error('[record] Error:', error);
     res.status(500).json({ error: error.message || 'Record error' });
   }
@@ -360,10 +377,8 @@ app.post('/api/v1/deals/:dealId/restore', async (req, res) => {
 // POST /api/v1/passkey/register - register Secp256r1 passkey credential on-chain
 app.post('/api/v1/passkey/register', async (req, res) => {
   try {
-    const { walletAddress, credentialId, publicKey } = req.body;
-    if (!walletAddress || !credentialId || !publicKey) {
-      return res.status(400).json({ error: 'walletAddress, credentialId, and publicKey are required' });
-    }
+    const validated = registerPasskeySchema.parse(req.body);
+    const { walletAddress, credentialId, publicKey } = validated;
     // Return contract call info for frontend to sign and submit via Freighter
     const contractId = process.env.ASTRA_REPO_CONTRACT_ID || 'CC4YMET3P4EOL5YOCPSXWTBM4F6DZEVJLCMKTFGDZXCHOSYW5MRHK7T2';
     res.json({
@@ -377,6 +392,9 @@ app.post('/api/v1/passkey/register', async (req, res) => {
       message: 'Sign and submit this transaction via Freighter to register your passkey on-chain.'
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.issues });
+    }
     res.status(500).json({ error: error.message || 'Passkey registration error' });
   }
 });
