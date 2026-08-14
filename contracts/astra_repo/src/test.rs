@@ -216,6 +216,27 @@ fn test_register_passkey() {
     client.register_passkey(&user, &credential_id, &public_key);
 }
 
+#[test]
+fn test_migrate_v2() {
+    let (env, client, _admin, native_xlm_sac, _ylds_sac) = setup_test();
+    let borrower = Address::generate(&env);
+
+    let xlm_stellar = token::StellarAssetClient::new(&env, &native_xlm_sac);
+    let deposit: i128 = 10_000_0_000_000;
+    xlm_stellar.mint(&borrower, &deposit);
+
+    client.create_repo_deal(
+        &borrower,
+        &deposit,
+        &Bytes::new(&env),
+        &Vec::new(&env),
+    );
+
+    // Call migrate_v2 which should succeed
+    client.migrate_v2();
+}
+
+
 
 
 
