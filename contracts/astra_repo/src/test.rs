@@ -159,3 +159,25 @@ fn test_get_margin_ratio() {
     assert_eq!(ratio, 29900);
 }
 
+#[test]
+fn test_fix_sacs() {
+    let (env, client, _admin, _native_xlm_sac, _ylds_sac) = setup_test();
+    
+    let new_xlm = Address::generate(&env);
+    let new_ylds = Address::generate(&env);
+    
+    // Call fix_sacs
+    client.fix_sacs(&new_xlm, &new_ylds);
+    
+    let borrower = Address::generate(&env);
+    // Since the new SAC address isn't registered, trying to create a deal should fail
+    let res = client.try_create_repo_deal(
+        &borrower,
+        &10_000_000_i128,
+        &Bytes::new(&env),
+        &Vec::new(&env),
+    );
+    assert!(res.is_err());
+}
+
+
