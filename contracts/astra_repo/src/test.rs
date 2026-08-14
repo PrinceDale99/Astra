@@ -205,5 +205,17 @@ fn test_restore_deal() {
     assert_eq!(res.err().unwrap().unwrap(), Error::DealNotFound);
 }
 
+#[test]
+fn test_register_passkey() {
+    let (env, client, _admin, _native_xlm_sac, _ylds_sac) = setup_test();
+    let user = Address::generate(&env);
+
+    let credential_id = Bytes::from_slice(&env, b"cred123");
+    let public_key = Bytes::from_slice(&env, b"pubkey456");
+
+    client.register_passkey(&user, &credential_id, &public_key);
+}
+
+
 
 
