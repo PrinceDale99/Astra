@@ -40,10 +40,12 @@ export class IndexerService {
       // Start from 6 hours ago (~4320 ledgers) but never before the archive window
       const sixHoursAgo = seq - 4320;
       this.lastLedger = Math.max(oldest + 1, sixHoursAgo);
+      this.connected = true;
       console.log(`Starting indexer from ledger ${this.lastLedger} (latest=${seq}, oldest=${oldest})`);
     } catch (e) {
       console.warn('Could not fetch latest ledger, defaulting to 0.', e);
       this.lastLedger = 0;
+      this.connected = false;
     }
 
     setInterval(async () => {
@@ -52,6 +54,7 @@ export class IndexerService {
           const latest = await this.server.getLatestLedger();
           const oldest = (latest as any).oldestLedger ?? Math.max(1, latest.sequence - 100000);
           this.lastLedger = Math.max(oldest + 1, latest.sequence - 4320);
+          this.connected = true;
           console.log(`Indexer initialized at ledger ${this.lastLedger}`);
           return;
         }
@@ -66,7 +69,9 @@ export class IndexerService {
           ],
         });
 
-        // ? FIX 1: ALWAYS advance lastLedger — regardless of whether events exist.
+        this.connected = true;
+
+        // ? FIX 1: ALWAYS advance lastLedger - regardless of whether events exist.
         // This prevents the indexer from re-scanning the same ledger range forever.
         if (response.latestLedger && response.latestLedger > this.lastLedger) {
           this.lastLedger = response.latestLedger;
@@ -96,6 +101,7 @@ export class IndexerService {
           }
         }
       } catch (err) {
+        this.connected = false;
         console.error('Error polling events:', err);
       }
     }, 10000); // 10 seconds poll interval
@@ -110,7 +116,7 @@ export class IndexerService {
       let eventType = 'Unknown';
       let dealIdOnChain: number | null = null;
 
-      // ? FIX 3: Correctly parse topic array — [eventName, dealId]
+      // ? FIX 3: Correctly parse topic array - [eventName, dealId]
       if (event.topic && event.topic.length > 0) {
         parsedTopic = event.topic.map((t: string) => {
           try {
@@ -125,7 +131,7 @@ export class IndexerService {
         }
       }
 
-      // ? FIX 4: Parse value — our contract emits tuples, not objects
+      // ? FIX 4: Parse value - our contract emits tuples, not objects
       let parsedValue: any = null;
       if (event.value && event.value.xdr) {
         try {
