@@ -25,7 +25,7 @@
 
 <br/>
 
-[ Live App](https://astra-seven-gules.vercel.app/)  [ Demo Video](https://www.youtube.com/watch?v=jXnLs0YNRks)  [ Pitch Deck](https://astra-seven-gules.vercel.app/pitchdeck)  [ Community Win]([PLACEHOLDER_WIN_URL])
+[ Live App](https://astra-seven-gules.vercel.app/)  [ Demo Video](https://www.youtube.com/watch?v=jXnLs0YNRks)  [ Pitch Deck](https://astra-seven-gules.vercel.app/pitchdeck)
 
 </div>
 
@@ -403,15 +403,6 @@ The CI/CD pipeline runs Rust Soroban tests, builds the smart contract, compiles 
 
 ---
 
-## Monthly Growth Report
-
-| Metric | Last Month | This Month | MoM Growth |
-|---|---|---|---|
-| **Institutional Borrowers** | [PH] | **[PH]** | [PH] |
-| **TVL (XLM)** | [PH] | **[PH]** | [PH] |
-| **Successful ZK Proofs** | [PH] | **[PH]** | [PH] |
-
----
 
 ## User Feedback & Iteration
 
@@ -457,13 +448,11 @@ The following V2 improvements were directly built in response to the survey resu
 
 ---
 
-## Community Recognition
+## Community Contribution
 
 > Astra is participating in the Stellar ecosystem initiatives.
 
-<div align="center">
-<img src="[PLACEHOLDER_IMAGE_URL]" alt="Community Contribution" width="80%"/>
-</div>
+See our [Community Documentation](COMMUNITY.md) for more details on our ongoing contributions, ecosystem wins, and initiatives.
 
 ---
 
@@ -471,7 +460,8 @@ The following V2 improvements were directly built in response to the survey resu
 
 | Platform | Link |
 |---|---|
-|  **X (Twitter)** | [Placeholder] |
+|  **X (Twitter)** | [View Announcement Post](https://x.com/Aquamarine64049/status/2088617162151952596?s=20) |
+|  **Technical Blog** | [Bringing the $3T Overnight Repo Market On-Chain inside Astra's Zero-Knowledge Architecture](https://princedale.medium.com/bringing-the-3t-overnight-repo-market-on-chain-inside-astras-zero-knowledge-architecture-on-83d4cdbaa5c9) |
 
 ---
 
